@@ -99,3 +99,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Jetbrains IDEA specific
+profiles_settings.xml
+markdown-navigator.xml
