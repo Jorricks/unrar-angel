@@ -3,6 +3,7 @@ A light-weight, highly configurable, unrar daemon.
 
 ## Dependencies
 - [Python Daemon](https://pypi.python.org/pypi/python-daemon/ "python-daemon")
+- [Python Daemon self implementation](https://gist.github.com/marazmiki/3618191#file-daemon-py-L216)
 - [Watchdog](https://pypi.python.org/pypi/watchdog "Watchdog")
 - [TinyDB](http://tinydb.readthedocs.io/en/latest/ "TinyDB")
 - [RarFile](https://rarfile.readthedocs.io/en/latest/ "rarfile")
