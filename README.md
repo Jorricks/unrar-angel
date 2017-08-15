@@ -2,8 +2,7 @@
 A light-weight, highly configurable, unrar daemon.
 
 ## Dependencies
-- [Python Daemon](https://pypi.python.org/pypi/python-daemon/ "python-daemon")
-- [Python Daemon self implementation](https://gist.github.com/marazmiki/3618191#file-daemon-py-L216)
+- [Python Daemon implementation by Sander Marechal](https://gist.github.com/andreif/cbb71b0498589dac93cb "Daemon implementation")
 - [Watchdog](https://pypi.python.org/pypi/watchdog "Watchdog")
 - [TinyDB](http://tinydb.readthedocs.io/en/latest/ "TinyDB")
 - [RarFile](https://rarfile.readthedocs.io/en/latest/ "rarfile")
@@ -12,8 +11,8 @@ A light-weight, highly configurable, unrar daemon.
 
 ## Roadmap
 1. Create the Python daemon.
-2. Create a file watcher.
-3. Create a logger.
+2. Create a logger.
+3. Create a file watcher.
 4. Create a settings function by using json.
 5. Create the Unrar function inside the file watcher.
 6. Create the website to edit the settings.
