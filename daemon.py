@@ -149,6 +149,4 @@ class Daemon:
 
         It will be called after the process has been daemonized by
         start() or restart()."""
-        while True:
-            self.logger.critical('Daemon', 'Wrong method bro')
-            time.sleep(1)
+        self.logger.critical('Daemon', 'Wrong method bro')
