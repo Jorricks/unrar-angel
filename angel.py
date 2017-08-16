@@ -2,20 +2,26 @@
 
 import sys, time
 from daemon import Daemon
-from logger import SingletonLogger
+from simplelogger import SimpleLogger
+from config import Config
+from watcher import Watcher
 
 
 class MyDaemon(Daemon):
     def run(self):
-        while True:
-            with open("/tmp/current_time.txt", "w") as f:
-                f.write("The time is now " + time.ctime())
-            time.sleep(1)
+        self.logger.info('Daemon', 'Starting the actual process 2')
+
+        watcher = Watcher(self.logger, self.config)
+        watcher.run()
+
+        self.logger.critical('Angel', 'Watcher ended, daemon has been beheaded')
 
 
 if __name__ == "__main__":
-    logger = SingletonLogger('DEBUG', '/tmp/angel-logger.log')
-    daemon = MyDaemon('/tmp/unrar-angel.pid', logger)
+    config = Config()
+    logger = SimpleLogger('DEBUG', '/tmp/angel-logger.log')
+
+    daemon = MyDaemon('/tmp/unrar-angel.pid', logger, config)
     print('UnRAR angel', end=' ')
 
     if len(sys.argv) == 2:

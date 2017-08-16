@@ -3,7 +3,6 @@ import os
 import signal
 import sys
 import time
-from logger import SingletonLogger
 
 
 class Daemon:
@@ -11,9 +10,10 @@ class Daemon:
 
     Usage: subclass the daemon class and override the run() method."""
 
-    def __init__(self, pidfile, logger):
+    def __init__(self, pidfile, logger, config):
         self.pidfile = pidfile
         self.logger = logger
+        self.config = config
         self.logger.debug('Daemon', 'Initiating Daemon')
 
     def daemonize(self):
@@ -149,10 +149,6 @@ class Daemon:
 
         It will be called after the process has been daemonized by
         start() or restart()."""
-        self.logger.info('Daemon', 'Starting the actual process')
-
         while True:
-            with open("/tmp/current_time.txt", "w") as f:
-                f.write("The time is now " + time.ctime())
-
+            self.logger.critical('Daemon', 'Wrong method bro')
             time.sleep(1)

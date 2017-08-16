@@ -2,7 +2,6 @@
 A light-weight, highly configurable, unrar daemon.
 
 ## Dependencies
-- [Python Daemon implementation by Sander Marechal](https://gist.github.com/andreif/cbb71b0498589dac93cb "Daemon implementation")
 - [Watchdog](https://pypi.python.org/pypi/watchdog "Watchdog")
 - [TinyDB](http://tinydb.readthedocs.io/en/latest/ "TinyDB")
 - [RarFile](https://rarfile.readthedocs.io/en/latest/ "rarfile")
@@ -19,7 +18,20 @@ A light-weight, highly configurable, unrar daemon.
 7. Testing framework.
 8. Add logging to the website.
 
+## Installation instructions
+1. Install Python3.x (3.5 preferred)
+2. Install python watchdog
+3. Install
+```linux
+pip3 install watchdog
+```
+
 ## UML Diagram
 Image:
 
 ![alt text](doc/Unrar-angel-diagram.jpg "UML Diagram")
+
+
+## Special thanks to
+- [Sander Marechal for a python daemon implementation](https://gist.github.com/andreif/cbb71b0498589dac93cb "Daemon implementation")
+-
