@@ -38,7 +38,6 @@ class Daemon:
         os.umask(0)
 
         self.logger.debug('Daemon', 'Initiating second fork')
-        # do second fork
         try:
             pid = os.fork()
             if pid > 0:
@@ -49,20 +48,12 @@ class Daemon:
             self.logger.critical('Daemon', 'Second fork failed')
             sys.exit(1)
 
-        # redirect standard file descriptors
-        # sys.stdout.flush()
-        # sys.stderr.flush()
-        #
-        # si = open(os.devnull, 'r')
-        # so = open('tmp/stdout.txt', 'a+')
-        # se = open('tmp/stderr.txt', 'a+')
-        # #
-        # # print(3)
-        # os.dup2(si.fileno(), sys.stdin.fileno())
-        # os.dup2(so.fileno(), sys.stdout.fileno())
-        # os.dup2(se.fileno(), sys.stderr.fileno())
+        self.logger.debug('Daemon', 'Redirecting standard output descriptors')
+        sys.stdout = Unbuffered(sys.stdout)
+        sys.stderr = Unbuffered(sys.stderr)
+        si = open(os.devnull, 'r')
+        os.dup2(si.fileno(), sys.stdin.fileno())
 
-        # write pidfile
         self.logger.debug('Daemon', 'Creating PID file')
         atexit.register(self.delpid)
 
@@ -150,3 +141,19 @@ class Daemon:
         It will be called after the process has been daemonized by
         start() or restart()."""
         self.logger.critical('Daemon', 'Wrong method bro')
+
+
+class Unbuffered(object):
+    def __init__(self, stream):
+        self.stream = stream
+
+    def write(self, data):
+        self.stream.write(data)
+        self.stream.flush()
+
+    def writelines(self, data):
+        self.stream.writelines(data)
+        self.stream.flush()
+
+    def __getattr__(self, attr):
+        return getattr(self.stream, attr)
