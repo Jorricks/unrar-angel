@@ -6,17 +6,19 @@ A light-weight, highly configurable, unrar daemon.
 - [TinyDB](http://tinydb.readthedocs.io/en/latest/ "TinyDB")
 - [Python unrar](https://github.com/matiasb/python-unrar "rarfile")
 - [RARLAB Unrar library](http://www.rarlab.com/rar_add.htm "RARLAB")
+- [Requests](http://docs.python-requests.org/en/master/user/quickstart/ "Requests library documentation")
 - [Flask](http://flask.pocoo.org/ "Flask")
 - [Advanced logging example](https://docs.python.org/2/howto/logging.html#configuring-logging "Advanced logging example")
 - [Plex.tv server commands](https://support.plex.tv/hc/en-us/articles/201638786-Plex-Media-Server-URL-Commands?mobile_site=true "Plex.tv server commands")
 
 ## Roadmap
-1. Create the Python daemon.
-2. Create a logger.
-3. Create a file watcher.
-4. Create a settings function by using json.
-5. Create the Unrar function inside the file watcher.
-6. Create automatically update plex.tv library.
+1. Create the Python daemon. Done
+2. Create a logger. Done
+3. Create a file watcher. Done
+4. Create a settings function by using json. Done
+5. Create the Unrar function inside the file watcher. Done
+6. Create automatically update plex.tv library. Done
+6. Make the unrar script perfect, to support all settings.
 7. Create the website to edit the settings.
 8. Create testing framework.
 9. Add logging to the website.
