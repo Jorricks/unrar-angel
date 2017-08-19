@@ -3,6 +3,7 @@ from simplelogger import SimpleLogger
 from configer import Config
 from unrar import rarfile
 from unrar import unrarlib
+from plexupdater import Plexify
 
 
 class Singleton(type):
@@ -17,8 +18,9 @@ class Singleton(type):
 class ActualUnRAR:
     def __init__(self):
         self.logger = SimpleLogger()
-        self.logger.info('UnRAR', 'Initiating UnRAR class')
+        self.logger.info('UnRAR', 'Initializing UnRAR class')
         self.config = Config()
+        self.plex = Plexify(self.logger, self.config)
         self.files = []
         self.watcher_config = []
         self.last_size = []
@@ -49,6 +51,8 @@ class ActualUnRAR:
                 if file_info.st_size >= 0:
                     if file_info.st_size == self.last_size[i]:
                         if self.unrar_file(i, self.error_count[i]):
+                            if self.config.get_config_global('plex_on_or_off') == 1:
+                                self.plex.update_library(self.watcher_config[i])
                             del self.files[i]
                             del self.watcher_config[i]
                             del self.last_size[i]

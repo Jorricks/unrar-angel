@@ -63,14 +63,21 @@ class ActualConfig:
         self.search_and_set_watcher('uid', 1)  # D
         self.search_and_set_watcher('on_or_off', 0)  # D
         self.search_and_set_watcher('name', 'Watcher config 1')  # D
+
         self.search_and_set_watcher('source_path', '/home/user/Downloads')  # D
         self.search_and_set_watcher('destination_path', '/home/user/Downloads_unrar')  # D
         self.search_and_set_watcher('copy_or_unrar', 'unrar')
         self.search_and_set_watcher('remove_after_finished', 0)
         self.search_and_set_watcher('match_all_rar_formats', 1)
         self.search_and_set_watcher('if_not_match_rar_formats_then_regexp', '')
+
         self.search_and_set_watcher('recursive_searching', 1)  # D
         self.search_and_set_watcher('recursive_directory_building_for_new_file', 1)
+
+        self.search_and_set_watcher('plex_on_or_off', 0)
+        self.search_and_set_watcher('plex_ip_port', '127.0.0.1:32400')
+        self.search_and_set_watcher('plex_token', '7nr83qpBXvJZsJqbitQD')
+        self.search_and_set_watcher('plex_library_name', 'TV Series')
 
     def add_new_watchers(self):
         self.watchers.insert({'uid': self.get_highest_uid_watcher()+1, 'name': 'Watcher config 2'})
