@@ -18,14 +18,15 @@ A light-weight, highly configurable, unrar daemon.
 4. Create a settings function by using json. Done
 5. Create the Unrar function inside the file watcher. Done
 6. Create automatically update plex.tv library. Done
-6. Make the unrar script perfect, to support all settings.
-7. Create the website to edit the settings.
-8. Create testing framework.
-9. Add logging to the website.
+7. Create a function to test the installation and the configs. Done
+8. Make the unrar script perfect, to support all settings.
+9. Create the website to edit the settings.
+10. Create testing framework.
+11. Add logging to the website.
 
 ## Installation instructions
 1. Install Python 3.3-3.6
-2. Install watchdog, python-unrar and tinydb with pip
+2. Install watchdog, python-unrar, tinydb, requests with pip
 3. Download the latest RARLAB unrar tarball found
 [here](http://www.rarlab.com/rar_add.htm "RARLAB library")
 called UnRAR source.
@@ -36,7 +37,7 @@ to install the latest rar library (Do not forget to move the tarball to /usr/loc
 
 
 ```linux
-pip3 install watchdog unrar
+pip3 install watchdog unrar tinydb requests
 
 sudo apt-get install build-essential checkinstall
 sudo chown $USER /usr/local/src

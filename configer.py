@@ -1,5 +1,7 @@
+import os  # for testing if configs are valid paths.
 from tinydb import TinyDB, Query
 from tinydb.operations import set
+import consoleprint as console
 
 
 class Singleton(type):
@@ -54,6 +56,9 @@ class ActualConfig:
             if key not in item:
                 self.watchers.update(set(key, value), setting.uid == item['uid'])
 
+    def get_amount_of_watchers(self):
+        return len(self.watchers)
+
     def check_amount_of_watchers(self):
         if len(self.watchers) == 0:
             self.watchers.insert({'uid': 1})
@@ -107,6 +112,9 @@ class ActualConfig:
             return item[0][key]
         return False  # In any other case
 
+    def get_all_watchers(self):
+        return self.watchers
+
     def get_all_active_watchers(self):
         setting = Query()
         return self.watchers.search(setting.on_or_off == 1)
@@ -116,6 +124,103 @@ class ActualConfig:
 
     def should_watchers_restart(self):
         return self.watchers_should_restart
+
+    def test_global_int(self, key):
+        if not isinstance(self.get_config_global(key), int):
+            console.print_conf_error('Global config has invalid value at {}.\n\tShould be an int'.format(key))
+
+    def test_global_string(self, key):
+        if not isinstance(self.get_config_global(key), str):
+            console.print_conf_error('Global config has invalid value at {}.\n\tShould be a string'.format(key))
+
+    def test_global_path(self, key):
+        self.test_global_string(key)
+        path = self.get_config_global(key)
+        path_without_file = path.split('/')
+        path_without_file = path_without_file[0:len(path_without_file)-1]
+        path_without_file = "/".join(path_without_file) + "/"
+        if os.access(path_without_file, os.W_OK) is not True:
+            console.print_conf_error(
+                'Global config has invalid value at {}.\n\tShould be a valid path with write access '
+                '(/example/of/link.ext)'.format(key))
+
+    def test_global_or(self, key, values):
+        if self.get_config_global(key) not in values:
+            console.print_conf_error(
+                'Global config has invalid value at {}.\n\tShould be one of the following strings: {}'
+                .format(key, ", ".join(str(x) for x in values)))
+
+    @staticmethod
+    def test_watcher_boolean(value, key):
+        if value != 0 and value != 1:
+            console.print_conf_error('Watcher config has invalid value at {}.\n\tShould be 0 for off or 1 for on'
+                                     .format(key))
+
+    @staticmethod
+    def test_watcher_int(value, key):
+        if not isinstance(value, int):
+            console.print_conf_error('Watcher config has invalid value at {}.\n\tShould be an integer value'
+                                     .format(key))
+
+    @staticmethod
+    def test_watcher_str(value, key):
+        if not isinstance(value, str):
+            console.print_conf_error('Watcher config has invalid value at {}.\n\tShould be a string'.format(key))
+
+    @staticmethod
+    def test_watcher_path(value, key):
+        if os.access(value, os.W_OK) is not True:
+            console.print_conf_error(
+                'Watcher config has invalid value at {}.\n\tShould be a valid path with write access'
+                .format(key))
+
+    @staticmethod
+    def test_watcher_or(value, key, values):
+        if value not in values:
+            console.print_conf_error(
+                'Global config has invalid value at {}.\n\tShould be one of the following strings: {}'
+                .format(key, ", ".join(str(x) for x in values)))
+
+    def test_each_individual_setting(self):
+        print('Verifying all global settings')
+        for gs in ['personal_name', 'program_name']:
+            self.test_global_string(gs)
+
+        for gs in ['unrar_check_delay_in_seconds']:
+            self.test_global_int(gs)
+
+        for gs in ['logging_path', 'angel_pid_path']:
+            self.test_global_path(gs)
+
+        self.test_global_or('logging_level', ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
+
+        console.print_ok('Verified all global settings')
+        print('Verifying all watcher settings')
+
+        uid_list = []
+        for watcher in self.get_all_watchers():
+            for ws in ['on_or_off', 'remove_after_finished', 'match_all_rar_formats',
+                       'recursive_searching', 'recursive_directory_building_for_new_file',
+                       'plex_on_or_off']:
+                self.test_watcher_boolean(watcher[ws], ws)
+
+            for ws in ['uid']:
+                self.test_watcher_int(watcher[ws], ws)
+                if watcher[ws] in uid_list:
+                    console.print_conf_error('All watchers should have a distinct UID, {} is defined multiple times.'
+                                             .format(watcher[ws]))
+                uid_list.append(watcher[ws])
+
+            for ws in ['name', 'if_not_match_rar_formats_then_regexp',
+                       'plex_ip_port', 'plex_token', 'plex_library_name']:
+                self.test_watcher_str(watcher[ws], ws)
+
+            for ws in ['source_path', 'destination_path']:
+                self.test_watcher_path(watcher[ws], ws)
+
+            self.test_watcher_or(watcher['copy_or_unrar'], 'copy_or_unrar', ['copy', 'unrar'])
+
+        console.print_ok('Verified all watcher settings')
 
 
 class Config(ActualConfig, metaclass=Singleton):
