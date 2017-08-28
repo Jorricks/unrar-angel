@@ -13,7 +13,7 @@ class PlexUpdater:
             return self.update_library_call(config_uid, str(library_uid))
 
     def get_library_uid(self, config_uid):
-        url = self.url_builder('192.168.1.32:32400', '', '7nr83qpBXvJZsJqbitQD')
+        url = self.url_builder('192.168.1.41:32400', '', 'YJLtzxu1XXveYXwTZ4xz')
         # url = self.urlbuilder(self.config.get_config_watcher(config_uid, 'plex_ip_port'), '',
         #                       self.config.get_config_watcher(config_uid, 'plex_token'))
 
@@ -26,7 +26,7 @@ class PlexUpdater:
         return int(library_uids[0])
 
     def update_library_call(self, config_uid, library_uid):
-        url = self.url_builder('192.168.1.32:32400', '/' + library_uid + '/refresh', '7nr83qpBXvJZsJqbitQD')
+        url = self.url_builder('192.168.1.41:32400', '/' + library_uid + '/refresh', 'YJLtzxu1XXveYXwTZ4xz')
         # url = self.urlbuilder(self.config.get_config_watcher(config_uid, 'plex_ip_port'),
         #                       '/' + library_uid + '/refresh',
         #                       self.config.get_config_watcher(config_uid, 'plex_token'))
@@ -34,7 +34,7 @@ class PlexUpdater:
         if response.status_code == 200:
             print('Success')
         else:
-            print('Failed with error code: '+ response.status_code)
+            print('Failed with error code: '+ str(response.status_code))
 
     @staticmethod
     def url_builder(url, action, token):
