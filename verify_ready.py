@@ -42,12 +42,13 @@ class VerifyInstallation:
     @staticmethod
     def test_unrar_library():
         try:
+            print('Testing for package unrar')
             __import__('unrar')
             console.print_ok('Package found')
         except ImportError:
             console.print_error('Critical error! Package not found')
         except LookupError:
-            console.print_error('Unrar library not found. Please read the installation instructions')
+            console.print_error('Unrar library from RARLAB not found. Please read the installation instructions')
         except:
             console.print_error('Unrar library error. Are you sure this is installed? Check installation instructions')
 
@@ -57,10 +58,6 @@ class VerifyInstallation:
             console.print_ok('Has {} watchers'.format(self.config.get_amount_of_watchers()))
         else:
             console.print_error('0 watchers found. Created one.')
-
-        print('Verifying that all watchers have al settings configured.')
-        self.config.test_watchers()
-        console.print_ok('Finished verifying')
 
         print('Verifying that each setting is correct\n')
         self.config.test_each_individual_setting()
