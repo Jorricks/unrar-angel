@@ -34,7 +34,7 @@ git clone https://github.com/JorricksTU/unrar-angel
 4. Install watchdog, unrar, tinydb, requests with pip
 5. Download the latest RARLAB unrar tarball found
 [here](http://www.rarlab.com/rar_add.htm "RARLAB library")
-called UnRAR source.
+called 'UnRAR source'   .
 6. Follow the instructions
 [here](https://help.ubuntu.com/community/CompilingEasyHowTo "Install unrar lib")
 to install the latest rar library (Do not forget to move the tarball to /usr/local/src).
