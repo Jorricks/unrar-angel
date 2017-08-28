@@ -28,6 +28,7 @@ class Watcher:
             else:
                 event_handler = UnrarHandler(self.logger, self.config, self.UnRARer, active_watcher['uid'])
 
+            self.logger.info('Watcher', '1')
             observer = Observer()
             recursive = (1 == active_watcher['recursive_searching'])
             try:
@@ -81,7 +82,7 @@ class UnrarHandler(FileSystemEventHandler):
 
         elif event.event_type == 'created':
             # Take any action here when a file is first created.
-            self.logger.info('Watcher', 'Received created event: %s' % event.src_path)
+            self.logger.debug('Watcher', 'Received created event: %s' % event.src_path)
             self.unrar.add_new_file(event.src_path, '1')
 
 
@@ -100,5 +101,5 @@ class CopyHandler(FileSystemEventHandler):
 
         elif event.event_type == 'created':
             # Take any action here when a file is first created.
-            self.logger.info('Watcher', 'Received created event: %s' % event.src_path)
+            self.logger.debug('Watcher', 'Received created event: %s' % event.src_path)
             self.copyer.add_new_file(event.src_path, '1')
