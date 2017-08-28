@@ -49,7 +49,7 @@ class PlexUpdater:
         response = requests.get(url)
         if response.status_code == 200:
             self.logger.info('Plex', 'Updated library called {}'
-                             .format(self.config.get_config_watcher('plex_library_name')))
+                             .format(self.config.get_config_watcher(config_uid, 'plex_library_name')))
         else:
             self.logger.error('Plex', 'Updating failed with http error code: {}'.format(response.status_code))
 
