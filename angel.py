@@ -68,6 +68,7 @@ if __name__ == "__main__":
 
         else:
             print("\n\nUnknown command")
+            print("\n\nUsage: %s start|stop|restart|verify_program" % sys.argv[0])
             logger.info('Angel', config.get_config_global('program_name') +
                         ' received an unsupported parameter "{}"'.format(sys.argv[1]))
             sys.exit(2)
