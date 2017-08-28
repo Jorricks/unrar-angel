@@ -49,6 +49,8 @@ class VerifyInstallation:
             console.print_error('Critical error! Package not found')
         except LookupError:
             console.print_error('Unrar library from RARLAB not found. Please read the installation instructions')
+        except OSError:
+            console.print_error('Could not load it dynamically, which should\'nt be a real problem')
         except:
             console.print_error('Unrar library error. Are you sure this is installed? Check installation instructions')
 

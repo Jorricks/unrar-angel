@@ -16,6 +16,10 @@ class Singleton(type):
 class ActualConfig:
     def __init__(self):
         self.logger = ''
+
+        if not os.path.exists('config'):
+            os.makedirs('config')
+
         self.globals = TinyDB('config/global.json')
         self.watchers = TinyDB('config/watchers.json')
 
