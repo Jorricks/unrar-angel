@@ -32,7 +32,7 @@ class ActualConfig:
 
     def set_logger(self, logger):
         self.logger = logger
-        self.logger.info('Loaded config from directory {}'.format(os.path.abspath("config/global.json")))
+        self.logger.info('Config', 'Loaded config from directory {}'.format(os.path.abspath("config/global.json")))
 
     def search_and_set_globals(self, key, value):
         # A key and value are a different record
