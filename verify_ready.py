@@ -4,7 +4,7 @@ import consoleprint as console
 
 class VerifyInstallation:
     def __init__(self, config):
-        print('Testing all required installations\n')
+        console.printn('Testing all required installations\n')
 
         self.test_python_version()
 
@@ -17,14 +17,14 @@ class VerifyInstallation:
 
     @staticmethod
     def test_python_version():
-        print('Testing python version.')
+        console.printn('Testing python version.')
         if sys.version_info[0] >= 3:
             console.print_ok('Python version is {}'.format(str(sys.version).replace("\n", " ")))
         else:
             console.print_error('Must be using a Python version of at least 3.2.')
 
     def test_all_packages(self):
-        print('Testing all packages\n')
+        console.printn('Testing all packages\n')
         self.test_package('watchdog')
         self.test_package('requests')
         self.test_package('tinydb')
@@ -32,7 +32,7 @@ class VerifyInstallation:
 
     @staticmethod
     def test_package(package):
-        print('Testing for package {}'.format(package))
+        console.printn('Testing for package {}'.format(package))
         try:
             __import__(package)
             console.print_ok('Package found')
@@ -42,27 +42,26 @@ class VerifyInstallation:
     @staticmethod
     def test_unrar_library():
         try:
+            console.printn('Testing for package unrar')
             __import__('unrar')
             console.print_ok('Package found')
         except ImportError:
             console.print_error('Critical error! Package not found')
         except LookupError:
-            console.print_error('Unrar library not found. Please read the installation instructions')
+            console.print_error('Unrar library from RARLAB not found. Please read the installation instructions')
+        except OSError:
+            console.print_error('Could not load it dynamically, which should\'nt be a real problem')
         except:
             console.print_error('Unrar library error. Are you sure this is installed? Check installation instructions')
 
     def test_config(self):
-        print('Testing amount of watchers')
+        console.printn('Testing amount of watchers')
         if self.config.get_amount_of_watchers() > 0:
             console.print_ok('Has {} watchers'.format(self.config.get_amount_of_watchers()))
         else:
             console.print_error('0 watchers found. Created one.')
 
-        print('Verifying that all watchers have al settings configured.')
-        self.config.test_watchers()
-        console.print_ok('Finished verifying')
-
-        print('Verifying that each setting is correct\n')
+        console.printn('Verifying that each setting is correct\n')
         self.config.test_each_individual_setting()
 
 

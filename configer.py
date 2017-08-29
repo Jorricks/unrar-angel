@@ -16,16 +16,23 @@ class Singleton(type):
 class ActualConfig:
     def __init__(self):
         self.logger = ''
+
+        if not os.path.exists('config'):
+            os.makedirs('config')
+
         self.globals = TinyDB('config/global.json')
         self.watchers = TinyDB('config/watchers.json')
 
-        self.test_globals()
-        self.test_watchers()
+        self.config_items = ConfigItems()
+
+        self.verify_global_configs_are_present()
+        self.verify_watcher_configs_are_present()
 
         self.watchers_should_restart = False
 
     def set_logger(self, logger):
         self.logger = logger
+        self.logger.info('Config', 'Loaded config from directory {}'.format(os.path.abspath("config/global.json")))
 
     def search_and_set_globals(self, key, value):
         # A key and value are a different record
@@ -33,13 +40,10 @@ class ActualConfig:
         if len(self.globals.search(setting.key == key)) == 0:
             self.globals.insert({'key': key, 'value': value})
 
-    def test_globals(self):
-        self.search_and_set_globals('personal_name', 'Doe')
-        self.search_and_set_globals('program_name', 'UnRAR angel')
-        self.search_and_set_globals('logging_path', '/tmp/angel-logger.log')
-        self.search_and_set_globals('logging_level', 'DEBUG')
-        self.search_and_set_globals('angel_pid_path', '/tmp/unrar-angel.pid')
-        self.search_and_set_globals('unrar_check_delay_in_seconds', 2)
+    def verify_global_configs_are_present(self):
+        global_items = self.config_items.get_global_config_options()
+        for global_item in global_items:
+            self.search_and_set_globals(global_item[0], global_item[2])
 
     def get_config_global(self, key):
         setting = Query()
@@ -63,29 +67,15 @@ class ActualConfig:
         if len(self.watchers) == 0:
             self.watchers.insert({'uid': 1})
 
-    def test_watchers(self):
+    def verify_watcher_configs_are_present(self):
         self.check_amount_of_watchers()
-        self.search_and_set_watcher('uid', 1)  # D
-        self.search_and_set_watcher('on_or_off', 0)  # D
-        self.search_and_set_watcher('name', 'Watcher config 1')  # D
-
-        self.search_and_set_watcher('source_path', '/home/user/Downloads')  # D
-        self.search_and_set_watcher('destination_path', '/home/user/Downloads_unrar')  # D
-        self.search_and_set_watcher('copy_or_unrar', 'unrar')
-        self.search_and_set_watcher('remove_after_finished', 0)
-        self.search_and_set_watcher('match_all_rar_formats', 1)
-        self.search_and_set_watcher('if_not_match_rar_formats_then_regexp', '')
-
-        self.search_and_set_watcher('recursive_searching', 1)  # D
-        self.search_and_set_watcher('recursive_directory_building_for_new_file', 1)
-
-        self.search_and_set_watcher('plex_on_or_off', 0)
-        self.search_and_set_watcher('plex_ip_port', '127.0.0.1:32400')
-        self.search_and_set_watcher('plex_token', '7nr83qpBXvJZsJqbitQD')
-        self.search_and_set_watcher('plex_library_name', 'TV Series')
+        watcher_items = self.config_items.get_watcher_config_options()
+        for watcher_item in watcher_items:
+            self.search_and_set_watcher(watcher_item[0], watcher_item[2])
 
     def add_new_watchers(self):
-        self.watchers.insert({'uid': self.get_highest_uid_watcher()+1, 'name': 'Watcher config 2'})
+        self.watchers.insert({'uid': self.get_highest_uid_watcher()+1,
+                              'name': 'Watcher config' + str(self.get_highest_uid_watcher() + 1)})
 
     def copy_watcher(self, uid_original):
         setting = Query()
@@ -183,45 +173,93 @@ class ActualConfig:
 
     def test_each_individual_setting(self):
         print('Verifying all global settings')
-        for gs in ['personal_name', 'program_name']:
-            self.test_global_string(gs)
 
-        for gs in ['unrar_check_delay_in_seconds']:
-            self.test_global_int(gs)
-
-        for gs in ['logging_path', 'angel_pid_path']:
-            self.test_global_path(gs)
-
-        self.test_global_or('logging_level', ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
+        global_items = self.config_items.get_global_config_options()
+        for global_item in global_items:
+            if global_item[1] == 'str':
+                self.test_global_string(global_item[0])
+            if global_item[1] == 'int':
+                self.test_global_int(global_item[0])
+            if global_item[1] == 'path':
+                self.test_global_path(global_item[0])
+            if global_item[1] == 'bool':
+                self.test_global_or(global_item[0], [0, 1])
+            if global_item[1] == 'or':
+                if len(global_item) < 4:
+                    print('Critical error! OR method does not have selection criteria.')
+                self.test_global_or(global_item[0], global_items[3])
 
         console.print_ok('Verified all global settings')
         print('Verifying all watcher settings')
 
         uid_list = []
+        watcher_items = self.config_items.get_watcher_config_options()
         for watcher in self.get_all_watchers():
-            for ws in ['on_or_off', 'remove_after_finished', 'match_all_rar_formats',
-                       'recursive_searching', 'recursive_directory_building_for_new_file',
-                       'plex_on_or_off']:
-                self.test_watcher_boolean(watcher[ws], ws)
-
-            for ws in ['uid']:
-                self.test_watcher_int(watcher[ws], ws)
-                if watcher[ws] in uid_list:
-                    console.print_conf_error('All watchers should have a distinct UID, {} is defined multiple times.'
-                                             .format(watcher[ws]))
-                uid_list.append(watcher[ws])
-
-            for ws in ['name', 'if_not_match_rar_formats_then_regexp',
-                       'plex_ip_port', 'plex_token', 'plex_library_name']:
-                self.test_watcher_str(watcher[ws], ws)
-
-            for ws in ['source_path', 'destination_path']:
-                self.test_watcher_path(watcher[ws], ws)
-
-            self.test_watcher_or(watcher['copy_or_unrar'], 'copy_or_unrar', ['copy', 'unrar'])
+            for watcher_item in watcher_items:
+                if watcher_item[1] == 'str':
+                    self.test_watcher_str(watcher[watcher_item[0]], watcher_item[0])
+                if watcher_item[1] == 'int':
+                    self.test_watcher_int(watcher[watcher_item[0]], watcher_item[0])
+                if watcher_item[1] == 'path':
+                    self.test_watcher_path(watcher[watcher_item[0]], watcher_item[0])
+                if watcher_item[1] == 'bool':
+                    self.test_watcher_boolean(watcher[watcher_item[0]], watcher_item[0])
+                if watcher_item[1] == 'or':
+                    if len(watcher_item) < 4:
+                        print('Critical error! OR method does not have selection criteria.')
+                    self.test_watcher_or(watcher[watcher_item[0]], watcher_item[0], watcher_items[3])
+                if watcher_item[0] == 'uid':
+                    if watcher[watcher_item[0]] in uid_list:
+                        console.print_conf_error(
+                            'All watchers should have a distinct UID, {} is defined multiple times.'
+                            .format(watcher[watcher_item[0]]))
+                    uid_list.append(watcher[watcher_item[0]])
 
         console.print_ok('Verified all watcher settings')
 
 
 class Config(ActualConfig, metaclass=Singleton):
     pass
+
+
+class ConfigItems:
+
+    def __init__(self):
+        self.gci = []  # Global config items
+        self.wci = []  # Watcher config items
+        
+        self.gci.append(['personal_name', 'str', 'Doe'])
+        self.gci.append(['program_name', 'str', 'UnRAR angel'])
+        self.gci.append(['logging_path', 'path', '/tmp/angel-logger.log'])
+        self.gci.append(['logging_level', 'option', 'DEBUG'])
+        # self.gci[len(self.gci) - 1].append(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
+        self.gci.append(['angel_pid_path', 'path', '/tmp/unrar-angel.pid'])
+        self.gci.append(['update_delay_in_seconds', 'int', 2])
+        
+        self.wci.append(['uid', 'int', 1])  # D
+        self.wci.append(['on_or_off', 'bool', 0])  # D
+        self.wci.append(['name', 'str', 'Watcher config 1'])  # D
+        
+        self.wci.append(['source_path', 'path', '/home/user/Downloads/'])  # D
+        self.wci.append(['destination_path', 'path', '/home/user/Downloads_unrar/'])  # D
+        self.wci.append(['copy_or_unrar', 'option', 'unrar'])  # D
+        self.wci[len(self.wci) - 1].append(['copy', 'unrar'])
+        self.wci.append(['remove_after_finished', 'bool', 0])  # D
+        self.wci.append(['copy_match_everything', 'bool', 1])
+        self.wci.append(['copy_not_everything_but_match_regexp', 'str', ''])
+        self.wci.append(['unrar_match_only_rar_extension', 'bool', 1])
+        self.wci.append(['unrar_not_rar_but_match_regexp', 'str', ''])
+        
+        self.wci.append(['recursive_searching', 'bool', 1])  # D
+        self.wci.append(['recursive_directory_building_for_new_file', 'bool', 1])  # D
+        
+        self.wci.append(['plex_on_or_off', 'bool', 0])  # D
+        self.wci.append(['plex_ip_port', 'str', '127.0.0.1:32400'])  # D
+        self.wci.append(['plex_token', 'str', '7nr83qpBXvJZsJqbitQD'])  # D
+        self.wci.append(['plex_library_name', 'str', 'TV Series'])  # D
+
+    def get_global_config_options(self):
+        return self.gci
+
+    def get_watcher_config_options(self):
+        return self.wci

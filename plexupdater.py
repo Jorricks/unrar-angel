@@ -20,16 +20,23 @@ class PlexUpdater:
     def update_library(self, config_uid):
         library_uid = self.get_library_uid(config_uid)
         if library_uid > 0:
-            return self.update_library_call(config_uid, str(library_uid))
+            self.update_library_call(config_uid, str(library_uid))
 
     def get_library_uid(self, config_uid):
         url = self.url_builder(self.config.get_config_watcher(config_uid, 'plex_ip_port'), '',
                                self.config.get_config_watcher(config_uid, 'plex_token'))
         response = requests.get(url)
+        if response.status_code != 200:
+            if response.status_code == 401:
+                self.logger.error('Plex', 'Plex got 401. You entered incorrect credentials.'
+                                  .format(response.status_code))
+            else:
+                self.logger.error('Plex', 'Plex got error code {}.'.format(response.status_code))
+            return 0
 
         tree = ElementTree.fromstring(response.content)
         library_uids = [el.attrib.get('key') for el in tree.findall(
-            ".//Directory[@title='" + self.config.get_config_watcher('plex_library_name') + "']")]
+            ".//Directory[@title='" + self.config.get_config_watcher(config_uid, 'plex_library_name') + "']")]
         if len(library_uids) == 0:
             self.logger.error('Plex', 'Could not find library')
             return 0
@@ -41,9 +48,10 @@ class PlexUpdater:
                                self.config.get_config_watcher(config_uid, 'plex_token'))
         response = requests.get(url)
         if response.status_code == 200:
-            self.logger.info('Plex', 'Updated library called ' + self.config.get_config_watcher('plex_library_name'))
+            self.logger.info('Plex', 'Updated library called {}'
+                             .format(self.config.get_config_watcher(config_uid, 'plex_library_name')))
         else:
-            self.logger.error('Plex', 'Updating failed with http error code: ' + response.status_code)
+            self.logger.error('Plex', 'Updating failed with http error code: {}'.format(response.status_code))
 
     @staticmethod
     def url_builder(url, action, token):

@@ -4,6 +4,7 @@ from configer import Config
 from unrar import rarfile
 from unrar import unrarlib
 from plexupdater import Plexify
+import re
 
 
 class Singleton(type):
@@ -26,7 +27,19 @@ class ActualUnRAR:
         self.last_size = []
         self.error_count = []
 
-    def add_new_file_to_unrar(self, file, config):
+    def add_new_file(self, file, config):
+        if self.config.get_config_watcher(config, 'unrar_match_only_rar_extension') == 1:
+            if str(file)[-4:] != ".rar":
+                self.logger.debug('UnRAR', 'Did not add file {} as it did not match .rar as end file'
+                                  .format(str(file)))
+                return
+        else:
+            regex = self.config.get_config_watcher(config, 'unrar_not_rar_but_match_regexp')
+            if not re.match(regex, str(file)):
+                self.logger.debug('UnRAR', 'Did not add file {} as it did not match regex "{}".'
+                                  .format(str(file), regex))
+                return
+
         self.files.append(file)
         self.watcher_config.append(config)
         self.error_count.append(0)
@@ -51,7 +64,7 @@ class ActualUnRAR:
                 if file_info.st_size >= 0:
                     if file_info.st_size == self.last_size[i]:
                         if self.unrar_file(i, self.error_count[i]):
-                            if self.config.get_config_global('plex_on_or_off') == 1:
+                            if self.config.get_config_watcher(self.watcher_config[i], 'plex_on_or_off') == 1:
                                 self.plex.update_library(self.watcher_config[i])
                             del self.files[i]
                             del self.watcher_config[i]
@@ -61,7 +74,7 @@ class ActualUnRAR:
                             self.error_count[i] += 1
                             self.logger.info('UnRAR',
                                              'Encountered an error. Will keep trying for file {}'
-                                             .format(e.filename, e.strerror))
+                                             .format(self.files[i]))
                     else:  # This is to prevent unnecessary unrar attempts.
                         self.last_size[i] = file_info.st_size
                 i += 1
@@ -74,6 +87,14 @@ class ActualUnRAR:
 
     def unrar_file(self, i, error_count):
         try:
+            try:
+                file = open(self.files[i], "a+")
+                file.close()
+            except IOError as ee:
+                self.logger.error('UnRAR', 'Some process is still writing to file {} (error: {})'
+                                  .format(self.files[i], ee))
+                return False
+
             if not rarfile.is_rarfile(self.files[i]):
                 if error_count == 0:
                     self.logger.error('UnRAR', 'The following file is not a rarfile (yet): {}'.format(self.files[i]))
@@ -90,22 +111,32 @@ class ActualUnRAR:
                                          .format(self.files[i]))
                     self.logger.info('UnRAR', 'Started unrarring : {}'.format(self.files[i]))
 
-                    unrar_path = self.config.get_config_watcher(
-                        self.watcher_config[i],
-                        'destination_path')
+                    unrar_path = self.get_destination(i)
                     self.logger.debug('UnRAR', 'Destination path : {}'.format(unrar_path))
 
                     try:
                         rar.extractall(path=unrar_path)
                     except Exception as e:
-                        print('Errors encountered during unrar: {}'.format(e))
+                        self.logger.error('UnRAR', 'Errors encountered during unrar: {}'.format(e))
 
                     self.logger.info('UnRAR', 'Finished unrarring : {}'.format(self.files[i]))
                     return True
 
         except (rarfile.BadRarFile, unrarlib.UnrarException) as e:
-            print('Errors encountered during unrar: {}'.format(e))
+            self.logger.debug('UnRAR', 'UNRAR error encountered during unrar: {}'.format(e))
+        except OSError as e:
+            self.logger.debug('UnRAR', 'OSError encountered during unrar: {}'.format(e))
         return False
+
+    def get_destination(self, i):
+        sour = self.config.get_config_watcher(self.watcher_config[i], 'source_path')
+        dest = self.config.get_config_watcher(self.watcher_config[i], 'destination_path')
+        if self.config.get_config_watcher(self.watcher_config[i], 'recursive_directory_building_for_new_file') == 1:
+            split_up = str(self.files[i]).replace(sour, dest).split('/')
+            split_up = "/".join(split_up[0:len(split_up)-1])
+            return split_up
+        else:
+            return dest
 
 
 class UnRAR(ActualUnRAR, metaclass=Singleton):

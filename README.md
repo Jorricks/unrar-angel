@@ -4,7 +4,7 @@ A light-weight, highly configurable, unrar daemon.
 ## Dependencies
 - [Watchdog](https://pypi.python.org/pypi/watchdog "Watchdog")
 - [TinyDB](http://tinydb.readthedocs.io/en/latest/ "TinyDB")
-- [Python unrar](https://github.com/matiasb/python-unrar "rarfile")
+- [Python wrapper for unrar](https://github.com/matiasb/python-unrar "rarfile")
 - [RARLAB Unrar library](http://www.rarlab.com/rar_add.htm "RARLAB")
 - [Requests](http://docs.python-requests.org/en/master/user/quickstart/ "Requests library documentation")
 - [Flask](http://flask.pocoo.org/ "Flask")
@@ -25,15 +25,20 @@ A light-weight, highly configurable, unrar daemon.
 11. Add logging to the website.
 
 ## Installation instructions
-1. Install Python 3.3-3.6
-2. Install watchdog, python-unrar, tinydb, requests with pip
-3. Download the latest RARLAB unrar tarball found
+1. Install Python 3.3-3.6 (3.5 preferred)
+2. Install the program by installing git after which you execute
+```linux
+git clone https://github.com/JorricksTU/unrar-angel
+```
+3. Run the program as specified and use verify_install as param
+4. Install watchdog, unrar, tinydb, requests with pip
+5. Download the latest RARLAB unrar tarball found
 [here](http://www.rarlab.com/rar_add.htm "RARLAB library")
-called UnRAR source.
-4. Follow the instructions
+called 'UnRAR source'   .
+6. Follow the instructions
 [here](https://help.ubuntu.com/community/CompilingEasyHowTo "Install unrar lib")
 to install the latest rar library (Do not forget to move the tarball to /usr/local/src).
-5.
+7. Verify if everything is installed now with verify_install again.
 
 
 ```linux
@@ -47,6 +52,16 @@ cd unrar
 make
 sudo checkinstall
 ```
+
+## Run instructions
+By using the command 'which Python3.5' you get the path of your python3.
+Then the result often shows '/usr/bin/python3.5'. Then run the following
+command with your python location.
+```linux
+/usr/bin/python3.5 /home/user/unrar-angel/angel.py param
+```
+The params possible are 'start', 'stop', 'restart', 'status' and
+'verify_program'.
 
 ## UML Diagram
 Image:
