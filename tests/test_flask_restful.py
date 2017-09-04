@@ -1,12 +1,14 @@
+import collections
 import threading
 import time
-from flask import Flask, jsonify
-from flask_restful import Resource, Api, reqparse
-from simplelogger import SimpleLogger
-from configer import Config
 import json
 import ast
-
+from flask import Flask, jsonify
+from flask_restful import Resource, Api, reqparse
+from werkzeug.serving import make_server
+from file_read_backwards import FileReadBackwards
+from simplelogger import SimpleLogger
+from configer import Config
 
 
 class WebConfig:
@@ -24,6 +26,8 @@ class WebConfig:
                 time.sleep(1)
         except:
             self.logger.critical('WebConf', 'The webserver config thread ran into an error')
+            wat.shutdown_server()
+            sst.shutdown_server()
             wat.join()
             sst.join()
 
@@ -34,6 +38,8 @@ class WebApiThread(threading.Thread):
         self.logger = logger
         self.config = config
         self.port = port
+        self.shutdown_fun = self.run
+        self.srv = ''
 
     def run(self):  # Do the actual work.
         app = Flask(__name__)
@@ -142,12 +148,38 @@ class WebApiThread(threading.Thread):
                     # print('Second, update the value. Make update calls for this.')
                 return jsonify({'data': 'true'})
 
+        class LoggingInfo(Resource):
+            def get(self, end_line):
+                count = 0
+                arr = collections.defaultdict(dict)
+                with FileReadBackwards(config.get_config_global('logging_path'), encoding="utf-8") as frb:
+                    for l in frb:
+                        if count == int(end_line):
+                            if len(arr) < 1:
+                                return jsonify({'data': 'end_line_was_0'})
+                            return jsonify({'data': arr})
+                        split_up = str(l).split(' - ')
+                        arr[count]['time'] = split_up[0][:19]
+                        arr[count]['level'] = split_up[1].title().strip()
+                        arr[count]['component'] = split_up[2].title().strip()
+                        arr[count]['message'] = split_up[3]
+                        count += 1
+                if len(arr) < 1:
+                    return jsonify({'data': 'no_lines_in_file'})
+                return jsonify({'data': arr})
+
         api.add_resource(GlobalSettings, '/global_settings')
         api.add_resource(AllWatcherSettings, '/all_watcher_settings')
         api.add_resource(UpdateWatcherSetting, '/watcher_settings/<watcher_uid>')
+        api.add_resource(LoggingInfo, '/logging/<end_line>')
+
+        self.srv = make_server('192.168.10.129', self.port, app)
 
         if __name__ == '__main__':
-            app.run(port=self.port, host='192.168.10.129', debug=True, use_reloader=False)
+            self.srv.serve_forever()
+
+    def shutdown_server(self):
+        self.srv.shutdown()
 
 
 class StaticServerThread(threading.Thread):
@@ -156,6 +188,8 @@ class StaticServerThread(threading.Thread):
         self.logger = logger
         self.config = config
         self.port = port
+        self.shutdown_fun = self.run
+        self.srv = ''
 
     def run(self):  # Do the actual work.
         app = Flask(__name__)
@@ -167,9 +201,12 @@ class StaticServerThread(threading.Thread):
 
         api.add_resource(HelloWorld, '/')
 
+        self.srv = make_server('192.168.10.129', self.port, app)
         if __name__ == '__main__':
-            app.run(port=self.port, debug=True, use_reloader=False)
+            self.srv.serve_forever()
 
+    def shutdown_server(self):
+        self.srv.shutdown()
 
 webconf = WebConfig(SimpleLogger('DEBUG', '/tmp/angel-logger.log'), Config())
 webconf.start_web_servers()

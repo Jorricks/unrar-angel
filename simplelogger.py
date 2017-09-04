@@ -37,7 +37,7 @@ class ActualLogger(object):
         # create file handler, set level to debug and add new handler
         fh = logging.FileHandler(self.file, 'a')
         fh.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)-8s - %(message)s')
+        formatter = logging.Formatter('%(asctime)s - %(levelname)-8s - %(message)s')
         fh.setFormatter(formatter)
         self.py_logger.addHandler(fh)
 
