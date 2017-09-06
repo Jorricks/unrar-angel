@@ -9,3 +9,49 @@ http://www.colorhexa.com/ffa027
 .mdl-card__title.obey{
     background: url(http://moheban-ahlebeit.com/images/Iphone-Wallpapers-Torrent/Iphone-Wallpapers-Torrent-3.jpg) center center / cover;
 }
+
+
+.media-must-have-white-background {
+    background-color: white !important;
+}
+
+.top-info{
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.top-number {
+    margin-bottom: 0;
+    bottom: 0;
+    position: absolute;
+    text-align: center;
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.top-no-absolute {
+    position: inherit !important;
+}
+
+.site-content{
+    min-height: 641px !important
+}
+
+@media (min-width: 840px) {
+    .mdl-cell--6-col, .mdl-cell--6-col-desktop.mdl-cell--6-col-desktop {
+        width: calc(50% - 16px) !important;
+    }
+}
+
+@media (max-width: 839px) and (min-width: 480px) {
+    .mdl-cell--12-col, .mdl-cell--12-col-tablet.mdl-cell--12-col-tablet {
+        width: calc(100% - 16px) !important;
+    }
+}
+
+@media (max-width: 479px) {
+    .mdl-cell--12-col, .mdl-cell--12-col-phone.mdl-cell--12-col-phone {
+        width: calc(100% - 16px) !important;
+    }
+}
