@@ -1,3 +1,4 @@
+import collections
 import os  # for testing if configs are valid paths.
 from tinydb import TinyDB, Query
 from tinydb.operations import set
@@ -34,6 +35,10 @@ class ActualConfig:
         self.logger = logger
         self.logger.info('Config', 'Loaded config from directory {}'.format(os.path.abspath("config/global.json")))
 
+    # Global related items
+    # - Setting global settings
+    # - Verifying that they are set
+
     def search_and_set_globals(self, key, value):
         # A key and value are a different record
         setting = Query()
@@ -45,6 +50,9 @@ class ActualConfig:
         for global_item in global_items:
             self.search_and_set_globals(global_item[0], global_item[2])
 
+    def get_all_global_settings(self):
+        return self.globals
+
     def get_config_global(self, key):
         setting = Query()
         if len(self.globals.search(setting.key == key)) != 0:
@@ -52,6 +60,19 @@ class ActualConfig:
         else:
             self.logger.critical('Config', 'Invalid global config key requested. {}'.format(key))
             return False
+
+    def set_config_global(self, value, keys):
+        setting = Query()
+        self.globals.update({'value': value}, setting.key == keys)
+        print('Should have changed {} to {}'.format(keys, value))
+        print('Value now is {}'.format(self.get_config_global(keys)))
+
+    # Watcher settings
+    # - Searching and setting settings
+    # - Verifying that they are set
+    # - Getting the amount of watchers
+    # - Copying a watcher
+    # - Verifying whether they should restart
 
     def search_and_set_watcher(self, key, value):
         # A key and value are on the same record
@@ -105,6 +126,10 @@ class ActualConfig:
     def get_all_watchers(self):
         return self.watchers
 
+    def get_watcher_by_uid(self, uid_d):
+        setting = Query()
+        return self.watchers.search(setting.uid == uid_d)
+
     def get_all_active_watchers(self):
         setting = Query()
         return self.watchers.search(setting.on_or_off == 1)
@@ -115,47 +140,67 @@ class ActualConfig:
     def should_watchers_restart(self):
         return self.watchers_should_restart
 
-    def test_global_int(self, key):
-        if not isinstance(self.get_config_global(key), int):
+    def set_config_watcher(self, uid, value, key):
+        setting = Query()
+        self.watchers.update({key: value}, setting.uid == int(uid))
+
+    # Testing settings
+    # - Testing whether the values actually match with the intended value.
+
+    def test_global_int(self, value, key):
+        if not isinstance(value, int):
             console.print_conf_error('Global config has invalid value at {}.\n\tShould be an int'.format(key))
+            return False
+        return True
 
-    def test_global_string(self, key):
-        if not isinstance(self.get_config_global(key), str):
+    def test_global_string(self, value, key):
+        if not isinstance(value, str):
             console.print_conf_error('Global config has invalid value at {}.\n\tShould be a string'.format(key))
+            return False
+        return True
 
-    def test_global_path(self, key):
-        self.test_global_string(key)
-        path = self.get_config_global(key)
-        path_without_file = path.split('/')
+    def test_global_path(self, value, key):
+        self.test_global_string(value, key)
+        path_without_file = value.split('/')
         path_without_file = path_without_file[0:len(path_without_file)-1]
         path_without_file = "/".join(path_without_file) + "/"
         if os.access(path_without_file, os.W_OK) is not True:
             console.print_conf_error(
                 'Global config has invalid value at {}.\n\tShould be a valid path with write access '
                 '(/example/of/link.ext)'.format(key))
+            return False
+        return True
 
-    def test_global_or(self, key, values):
-        if self.get_config_global(key) not in values:
+    def test_global_or(self, value, key, values):
+        if value not in values:
             console.print_conf_error(
                 'Global config has invalid value at {}.\n\tShould be one of the following strings: {}'
                 .format(key, ", ".join(str(x) for x in values)))
+            return False
+        return True
 
     @staticmethod
     def test_watcher_boolean(value, key):
         if value != 0 and value != 1:
             console.print_conf_error('Watcher config has invalid value at {}.\n\tShould be 0 for off or 1 for on'
                                      .format(key))
+            return False
+        return True
 
     @staticmethod
     def test_watcher_int(value, key):
         if not isinstance(value, int):
             console.print_conf_error('Watcher config has invalid value at {}.\n\tShould be an integer value'
                                      .format(key))
+            return False
+        return True
 
     @staticmethod
     def test_watcher_str(value, key):
         if not isinstance(value, str):
             console.print_conf_error('Watcher config has invalid value at {}.\n\tShould be a string'.format(key))
+            return False
+        return True
 
     @staticmethod
     def test_watcher_path(value, key):
@@ -163,6 +208,8 @@ class ActualConfig:
             console.print_conf_error(
                 'Watcher config has invalid value at {}.\n\tShould be a valid path with write access'
                 .format(key))
+            return False
+        return True
 
     @staticmethod
     def test_watcher_or(value, key, values):
@@ -170,6 +217,10 @@ class ActualConfig:
             console.print_conf_error(
                 'Global config has invalid value at {}.\n\tShould be one of the following strings: {}'
                 .format(key, ", ".join(str(x) for x in values)))
+            return False
+        return True
+
+    # Combining all the tests in one function
 
     def test_each_individual_setting(self):
         print('Verifying all global settings')
@@ -177,17 +228,17 @@ class ActualConfig:
         global_items = self.config_items.get_global_config_options()
         for global_item in global_items:
             if global_item[1] == 'str':
-                self.test_global_string(global_item[0])
+                self.test_global_string(self.get_config_global(global_item[0]), global_item[0])
             if global_item[1] == 'int':
-                self.test_global_int(global_item[0])
+                self.test_global_int(self.get_config_global(global_item[0]), global_item[0])
             if global_item[1] == 'path':
-                self.test_global_path(global_item[0])
+                self.test_global_path(self.get_config_global(global_item[0]), global_item[0])
             if global_item[1] == 'bool':
-                self.test_global_or(global_item[0], [0, 1])
+                self.test_global_or(self.get_config_global(global_item[0]), global_item[0], [0, 1])
             if global_item[1] == 'or':
                 if len(global_item) < 4:
                     print('Critical error! OR method does not have selection criteria.')
-                self.test_global_or(global_item[0], global_items[3])
+                self.test_global_or(self.get_config_global(global_item[0]), global_item[0], global_items[3])
 
         console.print_ok('Verified all global settings')
         print('Verifying all watcher settings')
@@ -217,13 +268,65 @@ class ActualConfig:
 
         console.print_ok('Verified all watcher settings')
 
+    # Function to convert TinyDB items to JSON.
+    def get_all_global_settings_json(self):
+        arr = collections.defaultdict(dict)
+        i = 0
+        for global_set in self.config_items.get_global_config_options():
+            arr[i]['name'] = global_set[0]
+            arr[i]['type'] = global_set[1]
+            arr[i]['default'] = global_set[2]
+            if len(global_set) > 3:
+                arr[i]['enum'] = global_set[3]
+            else:
+                arr[i]['enum'] = None
+            arr[i]['value'] = self.get_config_global(global_set[0])
+            i += 1
+        return arr
+
+    def get_all_watcher_settings_json(self, watcher_uid=''):
+        arr = collections.defaultdict(dict)
+        if watcher_uid == '':
+            watchers = self.get_all_watchers()
+        else:
+            watchers = self.get_watcher_by_uid(int(watcher_uid))
+        first = True
+        i = 0
+        for watcher_setting in self.config_items.get_watcher_config_options():
+            setting_key = watcher_setting[0]
+            setting_type = watcher_setting[1]
+            setting_default = watcher_setting[2]
+            setting_enum = watcher_setting[3] if len(watcher_setting) > 3 else None
+            for watcher in watchers:
+                uid = watcher['uid']
+                if first:
+                    arr[uid] = collections.defaultdict(dict)
+                    first = False
+                arr[uid][i] = collections.defaultdict(dict)
+                arr[uid][i]['uid'] = setting_key
+                arr[uid][i]['type'] = setting_type
+                arr[uid][i]['default'] = setting_default
+                arr[uid][i]['enum'] = setting_enum
+                arr[uid][i]['key'] = self.get_config_watcher(watcher['uid'], setting_key)
+            i += 1
+        return arr
+
+    def get_config_item_type(self, key):
+        for setting in self.config_items.get_both_global_config_options():
+            if setting[0] == key:
+                if len(setting) > 3:
+                    return setting[1], setting[3]
+                else:
+                    return setting[1], None
+        return None, None
+
 
 class Config(ActualConfig, metaclass=Singleton):
     pass
 
 
+# Containing all the default values and what they are for sort of value.
 class ConfigItems:
-
     def __init__(self):
         self.gci = []  # Global config items
         self.wci = []  # Watcher config items
@@ -232,9 +335,12 @@ class ConfigItems:
         self.gci.append(['program_name', 'str', 'UnRAR angel'])
         self.gci.append(['logging_path', 'path', '/tmp/angel-logger.log'])
         self.gci.append(['logging_level', 'option', 'DEBUG'])
-        # self.gci[len(self.gci) - 1].append(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
+        self.gci[len(self.gci) - 1].append(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
         self.gci.append(['angel_pid_path', 'path', '/tmp/unrar-angel.pid'])
         self.gci.append(['update_delay_in_seconds', 'int', 2])
+        self.gci.append(['web_config_site_port', 'int', 5000])
+        self.gci.append(['web_config_api_port', 'int', 5001])
+        self.gci.append(['web_password', 'str', 'unrar_angel'])
         
         self.wci.append(['uid', 'int', 1])  # D
         self.wci.append(['on_or_off', 'bool', 0])  # D
@@ -263,3 +369,6 @@ class ConfigItems:
 
     def get_watcher_config_options(self):
         return self.wci
+
+    def get_both_global_config_options(self):
+        return self.gci + self.wci

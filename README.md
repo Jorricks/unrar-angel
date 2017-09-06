@@ -25,7 +25,7 @@ A light-weight, highly configurable, unrar daemon.
 11. Add logging to the website.
 
 ## Installation instructions
-1. Install Python 3.3-3.6 (3.5 preferred)
+1. Install Python 3.5-3.6 (3.5 preferred)
 2. Install the program by installing git after which you execute
 ```linux
 git clone https://github.com/JorricksTU/unrar-angel
