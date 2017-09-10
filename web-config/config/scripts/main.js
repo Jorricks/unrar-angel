@@ -22,7 +22,9 @@ $(document).ready(function(){
     });
     $pagenumber.bind('change', function(){
         updateLogView();
-    })
+    });
+
+    getGlobalConfig();
 });
 
 
@@ -86,9 +88,7 @@ function updateLogView(){
     $pageList = $('.page-selector');
     $pageList.empty();
     var max = 500 / amountOnPage;
-    console.log(max);
     for (var i = 1; i <= max; i++) {
-        console.log('created');
         $li = $('<li>')
             .addClass('mdl-menu__item')
             .attr('data-val', i)
@@ -145,4 +145,157 @@ function findGetParameter(parameterName) {
             if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
         });
     return result;
+}
+
+/*
+ *
+ * Global config items
+ *
+ */
+
+function getGlobalConfig(){
+    var url = 'http://' + localIP + ":" + APIPort + "/global_settings?pass=" + Password;
+    $.getJSON(url)
+        .done(function (json) {
+            buildForm(json, $('.global-config-form'));
+        })
+        .fail(function( jqxhr, textStatus, error ) {
+            var err = textStatus + ", " + error;
+            console.log( "Request Failed: " + err );
+        });
+}
+
+function buildForm(jsonData, $form, prefix){
+    $form.empty();
+    $.each(jsonData, function (i, element) {
+        if (element.type == "str" || element.type == "path" || element.type == "int"){
+            $formElement = $('<div>')
+                .addClass('mdl-textfield mdl-js-textfield mdl-textfield--floating-label');
+
+            $input = $('<input>')
+                .addClass('mdl-textfield__input')
+                .attr('type', 'text')
+                .prop('required',true)
+                .attr('id', prefix + element.name)
+                .val(element.value)
+                .appendTo($formElement);
+
+            $label = $('<label>')
+                .addClass('mdl-textfield__label')
+                .attr('for', prefix + element.name)
+                .text(getGlobalTrans(element.name))
+                .appendTo($formElement);
+
+            $span = $('<span>')
+                .addClass('mdl-textfield__error')
+                .appendTo($formElement);
+
+            if (element.type == "int") {
+                $input.attr('pattern', "[0-9]+");
+                $span.text('This should be a number!');
+            }
+            if (element.type == "str") {
+                $input.attr('pattern', ".{1,}");
+                $span.text('This should be a str!');
+            }
+            if (element.type == "path") {
+                $input.attr('pattern', "(\/)(.{1,})");
+                $span.text('This should be an absolute path!');
+            }
+
+            upgradeEl($formElement);
+            $formElement.appendTo($form);
+        }
+
+        if(element.type == "bool"){
+            $label = $('<label>')
+                    .addClass('mdl-switch mdl-js-switch mdl-js-ripple-effect')
+                    .attr('for', prefix + element.name);
+
+            $('<input>')
+                .attr('type', 'checkbox')
+                .attr('id', prefix + element.name)
+                .addClass('mdl-switch__input')
+                .appendTo($label);
+
+            $('<span>')
+                .addClass('mdl-switch__label')
+                .text(getGlobalTrans(element.name))
+                .appendTo($label);
+
+            upgradeEl($label);
+            $label.appendTo($form);
+        }
+
+        if(element.type == "option"){
+            $formElement = $('<div>')
+                .addClass('getmdl-select__fullwidth ' +
+                    'mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select'+element.name);
+
+            $input = $('<input>')
+                .addClass('mdl-textfield__input')
+                .attr('id', prefix + element.name)
+                .attr('name', prefix + element.name)
+                .attr('value', element.value)
+                .attr('type', 'text')
+                // .attr('readonly', 1)
+                .attr('tabIndex', '-1')
+                .attr('data-val', element.value);
+            upgradeEl($input);
+            $input.appendTo($formElement);
+
+            $label = $('<label>')
+                .addClass('mdl-textfield__label')
+                .attr('for', prefix + element.name)
+                .text(getGlobalTrans(element.name));
+            upgradeEl($label);
+            $label.appendTo($formElement);
+
+            $ul = $('<ul>')
+                .addClass('mdl-menu mdl-menu--bottom-left mdl-js-menu')
+                .attr('for', prefix + element.name);
+            // upgradeEl($ul);
+            $ul.appendTo($formElement);
+
+            for (var j = 0; j <= element.enum.length ; j++) {
+                $li = $('<li>')
+                    .addClass('mdl-menu__item')
+                    .attr('data-val', element.enum[j])
+                    .attr('tabindex', "-1")
+                    .text(element.enum[j])
+                    .appendTo($ul);
+            }
+
+            upgradeEl($formElement);
+            $formElement.appendTo($form);
+
+            getmdlSelect.init('.getmdl-select'+element.name);
+        }
+    });
+}
+
+function upgradeEl($item){
+    componentHandler.upgradeElement($item.get(0));
+}
+
+
+
+
+
+function getGlobalTrans(key){
+    return returnGlobalTranslation()[key];
+}
+
+function returnGlobalTranslation(){
+    var array = [];
+    array["personal_name"] = "Your name";
+    array["program_name"] = "Name of the program";
+    array["logging_path"] = "Logging path";
+    array["logging_level"] = "Logging level; debug logs everything";
+    array["angel_pid_path"] = "Path of the daemon file(required in order to stay alive)";
+    array["update_delay_in_seconds"] = "Check for an update every x seconds";
+    array["web_config_site_port"] = "Port used for the config site";
+    array["web_config_api_port"] = "Port used for the API of the config site";
+    array["web_password"] = "Password required for accessing this site";
+    return array;
 }

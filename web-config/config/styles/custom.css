@@ -55,3 +55,18 @@ http://www.colorhexa.com/ffa027
         width: calc(100% - 16px) !important;
     }
 }
+
+.custom-title {
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 24px;
+    font-weight: 300;
+}
+
+.mdl-cell.text-only {
+    padding: 30px;
+}
+
+.global-config-form .mdl-textfield,
+.global-config-form .mdl-switch {
+    display: block;
+}
