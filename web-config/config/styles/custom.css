@@ -63,6 +63,7 @@ http://www.colorhexa.com/ffa027
     font-family: Roboto, Helvetica, Arial, sans-serif;
     font-size: 24px;
     font-weight: 300;
+    margin-bottom: 20px;
 }
 
 .mdl-cell.text-only {
@@ -105,4 +106,22 @@ http://www.colorhexa.com/ffa027
 input[disabled]{
     cursor:not-allowed !important;
     color: lightgray;
+}
+.mdl-button--fab.mdl-button--colored.custom-fab {
+    background-color:rgb(255, 160, 39) !important;
+}
+.mdl-button--fab.mdl-button--colored.custom-fab:active {
+    background-color:rgb(204, 128, 31) !important;
+}
+.mdl-color--accent.custom-fab {
+     background-color:rgb(255, 160, 39) !important;
+}
+.mdl-color--accent.custom-fab:active {
+    background-color:rgb(204, 128, 31) !important;
+}
+
+.watcher-config-page .custom-fab {
+    position: absolute;
+    top: 25px;
+    right: 25px;
 }
