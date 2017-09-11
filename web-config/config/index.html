@@ -6,92 +6,149 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Unrar angel</title>
     <meta name="description" content="Demo of Material design portfolio template by TemplateFlip.com."/>
+
+    <script src="scripts/jquery-3.2.1.min.js"></script>
+    <script src="scripts/menu.js"></script>
+    <script src="scripts/main.js"></script>
+
     <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;amp;lang=en"
           rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css" rel="stylesheet">
+    <link href="styles/material.indigo-pink.min.css" rel="stylesheet">
     <link href="styles/main.css" rel="stylesheet">
     <link href="styles/custom.css" rel="stylesheet">
+
+    <script src="scripts/getmdl-select.min.js"></script>
+    <link href="styles/getmdl-select.min.css" rel="stylesheet">
 </head>
-<body id="top">
-<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header"><a href="contact.html" id="contact-button"
-                                                                  class="mdl-button mdl-button--fab mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast mdl-shadow--4dp"><i
-        class="material-icons">mail</i></a>
+<body onhashchange="hashChangeCurrentView();" id="top">
+<script>
+var localIP = '192.168.10.129';
+var staticPort = '5000';
+var APIPort = '5001';
+</script>
+
+
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <a href="contact.html" id="contact-button" class="mdl-button mdl-button--fab mdl-js-button mdl-button--raised
+    mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast mdl-shadow--4dp">
+        <i class="material-icons">mail</i></a>
     <header class="mdl-layout__header mdl-layout__header--waterfall site-header">
-        <div class="mdl-layout__header-row site-logo-row"><span class="mdl-layout__title">
-            <div class="site-logo"></div><span class="site-description">UnRAR Angle config</span></span></div>
+        <div class="mdl-layout__header-row site-logo-row">
+            <span class="mdl-layout__title">
+                <div class="site-logo"></div>
+                <span class="site-description">UnRAR Angle config</span>
+            </span>
+        </div>
         <div class="mdl-layout__header-row site-navigation-row mdl-layout--large-screen-only">
             <nav class="mdl-navigation mdl-typography--body-1-force-preferred-font">
-                <a class="mdl-navigation__link" href="index.html">Home</a>
-                <a class="mdl-navigation__link" href="portfolio.html">Global config</a>
-                <a class="mdl-navigation__link" href="about.html">Watchers</a>
-                <a class="mdl-navigation__link" href="contact.html">Log</a>
+                <a class="mdl-navigation__link" href="#home">Home</a>
+                <a class="mdl-navigation__link" href="#global-config">Global config</a>
+                <a class="mdl-navigation__link" href="#watcher-config">Watchers</a>
+                <a class="mdl-navigation__link" href="#logging">Log</a>
             </nav>
         </div>
     </header>
     <div class="mdl-layout__drawer mdl-layout--small-screen-only">
-        <nav class="mdl-navigation mdl-typography--body-1-force-preferred-font"><a class="mdl-navigation__link"
-                                                                                   href="index.html">Home</a><a
-                class="mdl-navigation__link" href="portfolio.html">Portfolio</a><a class="mdl-navigation__link"
-                                                                                   href="about.html">About</a><a
-                class="mdl-navigation__link" href="contact.html">Contact</a>
+        <nav class="mdl-navigation mdl-typography--body-1-force-preferred-font">
+            <a class="mdl-navigation__link" href="#home">Home</a>
+            <a class="mdl-navigation__link" href="#global-config">Global config</a>
+            <a class="mdl-navigation__link" href="#watcher-config">Watchers</a>
+            <a class="mdl-navigation__link" href="#logging">Log</a>
         </nav>
     </div>
     <main class="mdl-layout__content">
         <div class="site-content">
             <div class="container">
-                <div class="mdl-grid site-max-width">
+                <section class="section&#45;&#45;center mdl-grid site-max-width home-page">
+                    <div class="mdl-cell mdl-card mdl-shadow&#45;&#45;4dp portfolio-card">
+                        <div class="mdl-card__media media-must-have-white-background">
+                            <img class="article-image" src="img/running1600.png" border="0" alt="">
+                        </div>
+                        <div class="mdl-card__title top-info">
+                            <h2 class="mdl-card__title-text">Running watchers</h2>
+                        </div>
+                        <div class="mdl-card__supporting-text top-number running-watchers">
+
+                        </div>
+                    </div>
+                    <div class="mdl-cell mdl-card mdl-shadow&#45;&#45;4dp portfolio-card">
+                        <div class="mdl-card__media media-must-have-white-background">
+                            <img class="article-image" src="img/find-512.png" border="0" alt="">
+                        </div>
+                        <div class="mdl-card__title top-info">
+                            <h2 class="mdl-card__title-text">Amount of watchers configured</h2>
+                        </div>
+                        <div class="mdl-card__supporting-text top-number top-no-absolute watchers-in-total">
+
+                        </div>
+                    </div>
+                    <div class="mdl-cell mdl-card mdl-shadow&#45;&#45;4dp portfolio-card">
+                        <div class="mdl-card__media media-must-have-white-background">
+                            <img class="article-image" src="img/Added.png" border="0" alt="">
+                        </div>
+                        <div class="mdl-card__title top-info">
+                            <h2 class="mdl-card__title-text">Added files in the last 24 hours</h2>
+                        </div>
+                        <div class="mdl-card__supporting-text top-number">
+                            20
+                        </div>
+                    </div>
+                </section>
+
+                <div class="mdl-grid site-max-width home-page">
                     <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp welcome-card portfolio-card">
-                        <div class="mdl-card__title obey">
-                            <h2 class="mdl-card__title-text">Welcome</h2>
-                        </div>
-                        <div class="mdl-card__supporting-text">
-                            Welcome to the web config of UnRAR Angle. Please check the repository regularly for updates
-                            and if you have any issues.
-                        </div>
-                        <div class="mdl-card__actions mdl-card--border">
-                            <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect mdl-button--accent"
-                               href="https://github.com/JorricksTU/unrar-angel" target="_blank">
-                                Repository
-                            </a>
-                        </div>
+                        <form class="watcher-config">
+                            <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+                                <thead>
+                                <tr>
+                                    <th class="mdl-data-table__cell--non-numeric">Timestamp</th>
+                                    <th class="mdl-data-table__cell--non-numeric">Log level</th>
+                                    <th class="mdl-data-table__cell--non-numeric">Component</th>
+                                    <th class="mdl-data-table__cell--non-numeric">Message</th>
+                                </tr>
+                                </thead>
+                                <tbody class="logging-home-page">
+                                </tbody>
+                            </table>
+                        </form>
                     </div>
                 </div>
 
-                <div class="mdl-grid site-max-width">
+                <div class="mdl-grid site-max-width home-page">
                     <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp welcome-card portfolio-card">
                         <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
                             <thead>
                             <tr>
-                                <th class="mdl-data-table__cell--non-numeric">Name</th>
-                                <th class="mdl-data-table__cell--non-numeric">Nickname</th>
-                                <th>Age</th>
-                                <th class="mdl-data-table__cell--non-numeric">Living?</th>
+                                <th class="mdl-data-table__cell--non-numeric">Timestamp</th>
+                                <th class="mdl-data-table__cell--non-numeric">Time finished</th>
+                                <th class="mdl-data-table__cell--non-numeric">Unpacked file</th>
+                                <th class="mdl-data-table__cell--non-numeric">Destination</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr>
                                 <td class="mdl-data-table__cell--non-numeric">John Lennon</td>
                                 <td class="mdl-data-table__cell--non-numeric">The smart one</td>
-                                <td>40</td>
+                                <td class="mdl-data-table__cell--non-numeric">The smart one</td>
                                 <td class="mdl-data-table__cell--non-numeric">No</td>
                             </tr>
                             <tr>
                                 <td class="mdl-data-table__cell--non-numeric">Paul McCartney</td>
                                 <td class="mdl-data-table__cell--non-numeric">The cute one</td>
-                                <td>73</td>
+                                <td class="mdl-data-table__cell--non-numeric">The smart one</td>
                                 <td class="mdl-data-table__cell--non-numeric">Yes</td>
                             </tr>
                             <tr>
                                 <td class="mdl-data-table__cell--non-numeric">George Harrison</td>
                                 <td class="mdl-data-table__cell--non-numeric">The shy one</td>
-                                <td>58</td>
+                                <td class="mdl-data-table__cell--non-numeric">The smart one</td>
                                 <td class="mdl-data-table__cell--non-numeric">No</td>
                             </tr>
                             <tr>
                                 <td class="mdl-data-table__cell--non-numeric">Ringo Starr</td>
                                 <td class="mdl-data-table__cell--non-numeric">The funny one</td>
-                                <td>74</td>
+                                <td class="mdl-data-table__cell--non-numeric">The smart one</td>
                                 <td class="mdl-data-table__cell--non-numeric">Yes</td>
                             </tr>
                             </tbody>
@@ -99,19 +156,109 @@
                     </div>
                 </div>
 
-
-                <div class="mdl-grid site-max-width">
-                    <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp welcome-card portfolio-card">
-                        <form class="global-settings">
-                            <
+                <div class="mdl-grid site-max-width global-config-page">
+                    <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp welcome-card portfolio-card text-only">
+                        <div class="custom-title">Global config</div>
+                        <form class="global-config global-config-form">
+                            <div class="error-info">
+                                Could not fetch the data (yet).
+                            </div>
                         </form>
                     </div>
                 </div>
 
 
+                <div class="mdl-grid site-max-width watcher-config-page">
+                    <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp welcome-card portfolio-card text-only">
+                        <div class="custom-title">Watcher config</div>
+                        <div class="watcher-config-selecter-div">
+                            <div class="mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop
+                                mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select-which-config">
+                                <input class="mdl-textfield__input" id="select-which-epic-config"
+                                       name="select-which-epic-config" value="1" type="text" readonly tabIndex="-1"
+                                       data-val="1"/>
+                                <label class="mdl-textfield__label" for="select-which-epic-config">Page</label>
+                                <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu in-line-center watcher-ul-select"
+                                    for="select-which-epic-config">
+                                </ul>
+                            </div>
+                        </div>
+                        <form class="watcher-config watcher-config-form">
+                            <div class="error-info">
+                                Could not fetch the data (yet).
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+                <div class="mdl-grid site-max-width log-page">
+                    <!--<select class="in-line-center">-->
+                        <!--<option>1</option>-->
+                    <!--</select>-->
+                    <div class="mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop
+                    mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select">
+                        <input class="mdl-textfield__input" id="pagenumber" name="pagenumber" value="1" type="text" readonly tabIndex="-1" data-val="1"/>
+                        <label class="mdl-textfield__label" for="pagenumber">Page</label>
+                        <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu in-line-center page-selector" for="pagenumber">
+                            <li class="mdl-menu__item" data-val="1">1</li>
+                        </ul>
+                    </div>
+                    <div class="mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--6-col-desktop
+                    mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select">
+                        <input class="mdl-textfield__input" id="amountonpage" name="amountonpage" value="25" type="text" readonly tabIndex="-1" data-val="25"/>
+                        <label class="mdl-textfield__label" for="amountonpage">Logs on a page</label>
+                        <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu in-line-center amount-on-page" for="amountonpage">
+                            <li class="mdl-menu__item" data-val="10">10</li>
+                            <li class="mdl-menu__item" data-val="25">25</li>
+                            <li class="mdl-menu__item" data-val="50">50</li>
+                            <li class="mdl-menu__item" data-val="100">100</li>
+                            <li class="mdl-menu__item" data-val="250">250</li>
+                        </ul>
+                    </div>
+                    <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp welcome-card portfolio-card">
+                        <form class="watcher-config">
+                            <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+                                <thead>
+                                <tr>
+                                    <th class="mdl-data-table__cell--non-numeric">Timestamp</th>
+                                    <th class="mdl-data-table__cell--non-numeric">Log level</th>
+                                    <th class="mdl-data-table__cell--non-numeric">Component</th>
+                                    <th class="mdl-data-table__cell--non-numeric">Message</th>
+                                </tr>
+                                </thead>
+                                <tbody class="log-page-table-body">
+                                <tr>
+                                    <td class="mdl-data-table__cell--non-numeric">2017-08-29 10:26:23,744</td>
+                                    <td class="mdl-data-table__cell--non-numeric">INFO</td>
+                                    <td class="mdl-data-table__cell--non-numeric">PLEX</td>
+                                    <td class="mdl-data-table__cell--non-numeric">Updated library called TV Series</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </form>
+                    </div>
+                </div>
 
 
                 <!--
+                <div class="mdl-grid site-max-width home-page">
+                    <div class="mdl-cell mdl-cell&#45;&#45;12-col mdl-card mdl-shadow&#45;&#45;4dp welcome-card portfolio-card">
+                        <div class="mdl-card__title obey">
+                            <h2 class="mdl-card__title-text">Welcome</h2>
+                        </div>
+                        <div class="mdl-card__supporting-text">
+                            Welcome to the web config of UnRAR Angle. Please check the repository regularly for updates
+                            and if you have any issues.
+                        </div>
+                        <div class="mdl-card__actions mdl-card&#45;&#45;border">
+                            <a class="mdl-button mdl-button&#45;&#45;colored mdl-js-button mdl-js-ripple-effect mdl-button&#45;&#45;accent"
+                               href="https://github.com/JorricksTU/unrar-angel" target="_blank">
+                                Repository
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 <section class="section&#45;&#45;center mdl-grid site-max-width">
                     <header class="section__play-btn mdl-cell mdl-cell&#45;&#45;3-col-desktop mdl-cell&#45;&#45;2-col-tablet mdl-cell&#45;&#45;4-col-phone mdl-color&#45;&#45;teal-100 mdl-color-text&#45;&#45;white  mdl-shadow&#45;&#45;4dp">
                         <i class="material-icons">play_circle_filled</i>
@@ -238,7 +385,7 @@
             </div>
         </footer>
     </main>
-    <script src="https://code.getmdl.io/1.3.0/material.min.js" defer></script>
+    <script src="scripts/material.min.js" defer></script>
 </div>
 </body>
 </html>
