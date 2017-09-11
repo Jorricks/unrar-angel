@@ -303,11 +303,11 @@ class ActualConfig:
                     arr[uid] = collections.defaultdict(dict)
                     first = False
                 arr[uid][i] = collections.defaultdict(dict)
-                arr[uid][i]['uid'] = setting_key
+                arr[uid][i]['name'] = setting_key
                 arr[uid][i]['type'] = setting_type
                 arr[uid][i]['default'] = setting_default
                 arr[uid][i]['enum'] = setting_enum
-                arr[uid][i]['key'] = self.get_config_watcher(watcher['uid'], setting_key)
+                arr[uid][i]['value'] = self.get_config_watcher(watcher['uid'], setting_key)
             i += 1
         return arr
 
@@ -348,16 +348,15 @@ class ConfigItems:
         
         self.wci.append(['source_path', 'path', '/home/user/Downloads/'])  # D
         self.wci.append(['destination_path', 'path', '/home/user/Downloads_unrar/'])  # D
+        self.wci.append(['recursive_searching', 'bool', 1])  # D
+        self.wci.append(['recursive_directory_building_for_new_file', 'bool', 1])  # D
         self.wci.append(['copy_or_unrar', 'option', 'unrar'])  # D
         self.wci[len(self.wci) - 1].append(['copy', 'unrar'])
         self.wci.append(['remove_after_finished', 'bool', 0])  # D
         self.wci.append(['copy_match_everything', 'bool', 1])
-        self.wci.append(['copy_not_everything_but_match_regexp', 'str', ''])
+        self.wci.append(['copy_not_everything_but_match_regexp', 'str', '.'])
         self.wci.append(['unrar_match_only_rar_extension', 'bool', 1])
-        self.wci.append(['unrar_not_rar_but_match_regexp', 'str', ''])
-        
-        self.wci.append(['recursive_searching', 'bool', 1])  # D
-        self.wci.append(['recursive_directory_building_for_new_file', 'bool', 1])  # D
+        self.wci.append(['unrar_not_rar_but_match_regexp', 'str', '.'])
         
         self.wci.append(['plex_on_or_off', 'bool', 0])  # D
         self.wci.append(['plex_ip_port', 'str', '127.0.0.1:32400'])  # D

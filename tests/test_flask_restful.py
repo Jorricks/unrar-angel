@@ -4,6 +4,7 @@ import time
 import json
 import ast
 from flask import Flask, jsonify
+from flask_cors import CORS
 from flask_restful import Resource, Api, reqparse
 from werkzeug.serving import make_server
 from file_read_backwards import FileReadBackwards
@@ -43,6 +44,7 @@ class WebApiThread(threading.Thread):
 
     def run(self):  # Do the actual work.
         app = Flask(__name__)
+        CORS(app)
         api = Api(app)
 
         parser = reqparse.RequestParser()
@@ -150,6 +152,9 @@ class WebApiThread(threading.Thread):
 
         class LoggingInfo(Resource):
             def get(self, end_line):
+                args = parser.parse_args()
+                if not password_is_valid(args['pass']): return jsonify({'data': 'invalid_pass'})
+
                 count = 0
                 arr = collections.defaultdict(dict)
                 with FileReadBackwards(config.get_config_global('logging_path'), encoding="utf-8") as frb:
