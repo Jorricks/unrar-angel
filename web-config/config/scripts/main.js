@@ -20,6 +20,9 @@ $(document).ready(function(){
         $pagenumber.val(1);
         updateLogView();
     });
+    $('.getmdl-select-which-config').bind('change', function(){
+        updateWatcherConfigForm();
+    });
     $pagenumber.bind('change', function(){
         updateLogView();
     });
@@ -53,6 +56,7 @@ function getLoggingInfo(){
         });
 }
 
+var currentWatcherUID = '';
 function getWatcherSettings(){
     var amountOfWatchers = 0;
     var amountOfActiveWatchers = 0;
@@ -60,12 +64,18 @@ function getWatcherSettings(){
     $.getJSON(url)
         .done(function (json) {
             dataOfWatchers = json;
+            var first = true;
             $.each(json, function (i, watcher) {
+                if(first){
+                    first = false;
+                    currentWatcherUID = watcher[0]['value'];
+                }
                 amountOfWatchers++;
-                if (watcher[1]['key'] == 1)
+                if (watcher[1]['value'] == 1)
                     amountOfActiveWatchers++;
             });
 
+            getWatcherConfig(json);
             $('.watchers-in-total').text(amountOfWatchers);
             $('.running-watchers').text(amountOfActiveWatchers);
         })
@@ -152,12 +162,84 @@ function findGetParameter(parameterName) {
  * Global config items
  *
  */
+var watcherJson = '';
+function getWatcherConfig(json){
+    if(json != undefined){
+        watcherJson = json;
+    }
+    $wachterselecter = $('.watcher-config-selecter-div');
+
+
+    $li = '';
+    $watcherconfigul = $('.watcher-ul-select');
+    $.each(watcherJson, function (i, watcher) {
+        $li = $('<li>')
+            .addClass('mdl-menu__item')
+            .attr('data-val', watcher[0]['value'])
+            .attr('tabindex', "-1")
+            .text(watcher[2]['value'])
+            .appendTo($watcherconfigul);
+    });
+    $($li).ready(function(){
+        getmdlSelect.init('.getmdl-select-which-config');
+    });
+
+    updateWatcherConfigForm();
+}
+
+function updateWatcherConfigForm(){
+    $watcherconfigform = $('.watcher-config-form');
+    $watcherconfigform.empty();
+    buildForm(watcherJson[currentWatcherUID], $watcherconfigform, getWatcherTrans);
+
+    // addSeperatorAfterElementDad($('#copy_or_unrar'));
+    addSeperatorAfterElementDad($('#unrar_not_rar_but_match_regexp'));
+    addSeperatorAfterElementDad($('#recursive_directory_building_for_new_file'));
+    addSeperatorAfterElementDad($('#plex_library_name'));
+
+    ifOnDisableFriends($('#plex_on_or_off'), 'plex');
+
+    basedOnResultDisable($('#copy_or_unrar'), 'copy', 'unrar');
+}
+
+function addSeperatorAfterElementDad($item){
+    $seperator = $('<div>')
+        .addClass('watcher-separator');
+    $item.parent().after($seperator);
+}
+
+function ifOnDisableFriends($item, selector){
+    $item.bind("change", function(e){
+        if($item.parent().hasClass('is-checked')){
+            $( "input[id^='" + selector + "']" ).prop("disabled", false);
+        } else {
+            $( "input[id^='" + selector + "']" ).prop("disabled", true);
+            $item.prop("disabled", false);
+        }
+    });
+    $item.trigger("change");
+}
+
+function basedOnResultDisable($item, selector1, selector2){
+    $item.bind("change", function(e){
+        if($item.val() == selector1){
+            $( "input[id^='" + selector1 + "']" ).parent().show();
+            $( "input[id^='" + selector2 + "']" ).parent().hide();
+        } else {
+            $( "input[id^='" + selector1 + "']" ).parent().hide();
+            $item.parent().show();
+            $( "input[id^='" + selector2 + "']" ).parent().show();
+        }
+    });
+    $item.trigger("change");
+}
+
 
 function getGlobalConfig(){
     var url = 'http://' + localIP + ":" + APIPort + "/global_settings?pass=" + Password;
     $.getJSON(url)
         .done(function (json) {
-            buildForm(json, $('.global-config-form'));
+            buildForm(json, $('.global-config-form'), getGlobalTrans);
         })
         .fail(function( jqxhr, textStatus, error ) {
             var err = textStatus + ", " + error;
@@ -165,7 +247,9 @@ function getGlobalConfig(){
         });
 }
 
-function buildForm(jsonData, $form, prefix){
+function buildForm(jsonData, $form, translatefunction, prefix){
+    if(prefix == undefined)
+        prefix = '';
     $form.empty();
     $.each(jsonData, function (i, element) {
         if (element.type == "str" || element.type == "path" || element.type == "int"){
@@ -183,7 +267,7 @@ function buildForm(jsonData, $form, prefix){
             $label = $('<label>')
                 .addClass('mdl-textfield__label')
                 .attr('for', prefix + element.name)
-                .text(getGlobalTrans(element.name))
+                .text(translatefunction(element.name))
                 .appendTo($formElement);
 
             $span = $('<span>')
@@ -212,19 +296,26 @@ function buildForm(jsonData, $form, prefix){
                     .addClass('mdl-switch mdl-js-switch mdl-js-ripple-effect')
                     .attr('for', prefix + element.name);
 
-            $('<input>')
+            $input = $('<input>')
                 .attr('type', 'checkbox')
                 .attr('id', prefix + element.name)
                 .addClass('mdl-switch__input')
                 .appendTo($label);
 
+            if(element.value == 1)
+                $input.attr('checked', true);
+
             $('<span>')
                 .addClass('mdl-switch__label')
-                .text(getGlobalTrans(element.name))
+                .text(translatefunction(element.name))
                 .appendTo($label);
 
             upgradeEl($label);
-            $label.appendTo($form);
+            if(element.name == 'on_or_off'){
+                $label.prependTo($form);
+            } else {
+                $label.appendTo($form);
+            }
         }
 
         if(element.type == "option"){
@@ -238,7 +329,7 @@ function buildForm(jsonData, $form, prefix){
                 .attr('name', prefix + element.name)
                 .attr('value', element.value)
                 .attr('type', 'text')
-                // .attr('readonly', 1)
+                .attr('readonly', true)
                 .attr('tabIndex', '-1')
                 .attr('data-val', element.value);
             upgradeEl($input);
@@ -247,7 +338,7 @@ function buildForm(jsonData, $form, prefix){
             $label = $('<label>')
                 .addClass('mdl-textfield__label')
                 .attr('for', prefix + element.name)
-                .text(getGlobalTrans(element.name));
+                .text(translatefunction(element.name));
             upgradeEl($label);
             $label.appendTo($formElement);
 
@@ -270,6 +361,9 @@ function buildForm(jsonData, $form, prefix){
             $formElement.appendTo($form);
 
             getmdlSelect.init('.getmdl-select'+element.name);
+
+            // Removing the last empty list item.. Weird shit.
+            $('li', $ul).last().remove();
         }
     });
 }
@@ -280,7 +374,9 @@ function upgradeEl($item){
 
 
 
-
+function getWatcherTrans(key){
+    return returnWatcherTranslation()[key];
+}
 
 function getGlobalTrans(key){
     return returnGlobalTranslation()[key];
@@ -298,4 +394,30 @@ function returnGlobalTranslation(){
     array["web_config_api_port"] = "Port used for the API of the config site";
     array["web_password"] = "Password required for accessing this site";
     return array;
+}
+
+function returnWatcherTranslation(){
+    var array = [];
+    array["uid"] = "The unique identifier of this watcher. (Must be an int)";
+    array["on_or_off"] = "Enable/disable this watcher";
+    array["name"] = "Name of the watcher";
+    array["source_path"] = "The folder the watcher should check for new files";
+    array["destination_path"] = "The destination path of all the new files";
+    array["copy_or_unrar"] = "Should we copy or unrar the files";
+    array["remove_after_finished"] = "Remove the file after the operation has been done(remove after copy turns the operation into a move, way faster!))";
+    array["copy_match_everything"] = "For copy operations, match everything(otherwise regexp below)";
+    array["copy_not_everything_but_match_regexp"] = "The regexp the files should match too in order to be processed";
+    array["unrar_match_only_rar_extension"] = "For rar operations, match .rar files(otherwise regexp below).";
+    array["unrar_not_rar_but_match_regexp"] = "The regexp the rar files should match too in order to be proccesed";
+    array["recursive_searching"] = "Search deep/recursive into the source path";
+    array["recursive_directory_building_for_new_file"] = "Recursive directory building for the new file";
+    array["plex_on_or_off"] = "Update plex libraries on succeed";
+    array["plex_ip_port"] = "Plex library address (e.g. localhost:32400)";
+    array["plex_token"] = "Your plex token (google 'get my plex token')";
+    array["plex_library_name"] = "Plex library name (e.g. 'TV Series')";
+    return array;
+}
+
+function getWatcherGroups(){
+
 }
