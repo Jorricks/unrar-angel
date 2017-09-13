@@ -147,13 +147,15 @@ class ActualConfig:
     # Testing settings
     # - Testing whether the values actually match with the intended value.
 
-    def test_global_int(self, value, key):
+    @staticmethod
+    def test_global_int(value, key):
         if not isinstance(value, int):
             console.print_conf_error('Global config has invalid value at {}.\n\tShould be an int'.format(key))
             return False
         return True
 
-    def test_global_string(self, value, key):
+    @staticmethod
+    def test_global_string(value, key):
         if not isinstance(value, str):
             console.print_conf_error('Global config has invalid value at {}.\n\tShould be a string'.format(key))
             return False
@@ -171,7 +173,8 @@ class ActualConfig:
             return False
         return True
 
-    def test_global_or(self, value, key, values):
+    @staticmethod
+    def test_global_or(value, key, values):
         if value not in values:
             console.print_conf_error(
                 'Global config has invalid value at {}.\n\tShould be one of the following strings: {}'
@@ -181,7 +184,7 @@ class ActualConfig:
 
     @staticmethod
     def test_watcher_boolean(value, key):
-        if value != 0 and value != 1:
+        if not (value or not value):
             console.print_conf_error('Watcher config has invalid value at {}.\n\tShould be 0 for off or 1 for on'
                                      .format(key))
             return False
@@ -334,10 +337,13 @@ class ConfigItems:
         self.gci.append(['personal_name', 'str', 'Doe'])
         self.gci.append(['program_name', 'str', 'UnRAR angel'])
         self.gci.append(['logging_path', 'path', '/tmp/angel-logger.log'])
+        self.gci.append(['logging_path_new_files', 'path', '/tmp/angel-logger-new-files.log'])
         self.gci.append(['logging_level', 'option', 'DEBUG'])
         self.gci[len(self.gci) - 1].append(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
         self.gci.append(['angel_pid_path', 'path', '/tmp/unrar-angel.pid'])
         self.gci.append(['update_delay_in_seconds', 'int', 2])
+        # @ToDo - Change this to 127.0.0.1
+        self.gci.append(['web_config_host_ip', 'str', '192.168.10.129'])
         self.gci.append(['web_config_site_port', 'int', 5000])
         self.gci.append(['web_config_api_port', 'int', 5001])
         self.gci.append(['web_password', 'str', 'unrar_angel'])
@@ -355,6 +361,8 @@ class ConfigItems:
         self.wci.append(['remove_after_finished', 'bool', 0])  # D
         self.wci.append(['copy_match_everything', 'bool', 1])
         self.wci.append(['copy_not_everything_but_match_regexp', 'str', '.'])
+        self.wci.append(['copy_actually_dont_do_shit', 'bool', 0])
+
         self.wci.append(['unrar_match_only_rar_extension', 'bool', 1])
         self.wci.append(['unrar_not_rar_but_match_regexp', 'str', '.'])
         

@@ -26,7 +26,8 @@ class MyDaemon(Daemon):
 if __name__ == "__main__":
     config = Config()
     logger = SimpleLogger(config.get_config_global('logging_level'),
-                          config.get_config_global('logging_path'))
+                          config.get_config_global('logging_path'),
+                          config.get_config_global('logging_path_new_files'))
     config.set_logger(logger)
 
     daemon = MyDaemon(config.get_config_global('angel_pid_path'), logger, config)

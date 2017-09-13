@@ -51,7 +51,9 @@ class ActualCopyer:
                               .format(len(self.files)))
         while i < len(self.files):
             try:
-                if self.config.get_config_watcher(self.watcher_config[i], 'remove_after_finished') == 1:
+                if self.config.get_config_watcher(self.watcher_config[i], 'copy_actually_dont_do_shit') == 1:
+                    result = True
+                elif self.config.get_config_watcher(self.watcher_config[i], 'remove_after_finished') == 1:
                     result = self.move_file(i)
                 else:
                     result = self.copy_file(i)
@@ -59,6 +61,11 @@ class ActualCopyer:
                 if result:
                     if self.config.get_config_watcher(self.watcher_config[i], 'plex_on_or_off') == 1:
                         self.plex.update_library(self.watcher_config[i])
+                    self.logger.py_new_file_logger(
+                        self.config.get_config_watcher(self.watcher_config[i], 'name'),
+                        self.files[i],
+                        self.config.get_config_watcher(self.watcher_config[i], 'destination_path')
+                    )
                     del self.files[i]
                     del self.watcher_config[i]
                     del self.last_size[i]
