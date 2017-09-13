@@ -384,6 +384,46 @@ function removeCurrentWatcherConfig(){
     return false;
 }
 
+function submitGlobalForm(){
+    var data = {};
+    var textfields = document.forms["globalConfig"].getElementsByTagName("input");
+    for(var i = 0; i < textfields.length; i++){
+        data[textfields[i].id] = textfields[i].value;
+    }
+    var url = 'http://' + localIP + ":" + APIPort + "/global_settings";
+    updateSettings(data, "global_settings", url);
+}
+
+function submitWatcherForm(){
+    var data = {};
+    var textfields = document.forms["watcherConfig"].getElementsByTagName("input");
+    for(var i = 0; i < textfields.length; i++){
+        if (textfields[i].value == 'on' || textfields[i].value == 'off'){
+            data[textfields[i].id] = textfields[i].checked;
+        } else {
+            data[textfields[i].id] = textfields[i].value;
+        }
+    }
+    var url = 'http://' + localIP + ":" + APIPort + "/watcher_settings/"+data['uid'];
+    updateSettings(data, "watcher_settings", url);
+}
+
+function updateSettings(newData, id, url){
+    var data = {};
+    data['pass'] = Password;
+    data[id] = newData;
+    data2 = JSON.stringify(data);
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: data2,
+        success: function(data){console.log(data); alert('Update successful.');},
+        error: function(data){console.log(data); alert('Something went wrong. Please restart the service.');},
+        dataType: 'json',
+        contentType : 'application/json',
+        processData: false
+    });
+}
 
 
 
@@ -405,6 +445,7 @@ function returnGlobalTranslation(){
     array["personal_name"] = "Your name";
     array["program_name"] = "Name of the program";
     array["logging_path"] = "Logging path";
+    array["logging_path_new_files"] = "Logging path for second file";
     array["logging_level"] = "Logging level; debug logs everything";
     array["angel_pid_path"] = "Path of the daemon file(required in order to stay alive)";
     array["update_delay_in_seconds"] = "Check for an update every x seconds";
@@ -416,7 +457,7 @@ function returnGlobalTranslation(){
 
 function returnWatcherTranslation(){
     var array = [];
-    array["uid"] = "The unique identifier of this watcher. (Must be an int)";
+    array["uid"] = "The unique identifier. (Changing this will make a copy)";
     array["on_or_off"] = "Enable/disable this watcher";
     array["name"] = "Name of the watcher";
     array["source_path"] = "The folder the watcher should check for new files";
