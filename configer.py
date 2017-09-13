@@ -342,6 +342,8 @@ class ConfigItems:
         self.gci[len(self.gci) - 1].append(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
         self.gci.append(['angel_pid_path', 'path', '/tmp/unrar-angel.pid'])
         self.gci.append(['update_delay_in_seconds', 'int', 2])
+        # @ToDo - Change this to 127.0.0.1
+        self.gci.append(['web_config_host_ip', 'str', '192.168.10.129'])
         self.gci.append(['web_config_site_port', 'int', 5000])
         self.gci.append(['web_config_api_port', 'int', 5001])
         self.gci.append(['web_password', 'str', 'unrar_angel'])

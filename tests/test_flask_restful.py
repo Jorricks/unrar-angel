@@ -18,8 +18,12 @@ class WebConfig:
         self.config = config
 
     def start_web_servers(self):
-        wat = WebApiThread(self.logger, self.config, self.config.get_config_global('web_config_api_port'))
-        sst = StaticServerThread(self.logger, self.config, self.config.get_config_global('web_config_site_port'))
+        wat = WebApiThread(self.logger, self.config,
+                           self.config.get_config_global('web_config_host_ip'),
+                           self.config.get_config_global('web_config_api_port'))
+        sst = StaticServerThread(self.logger, self.config,
+                                 self.config.get_config_global('web_config_host_ip'),
+                                 self.config.get_config_global('web_config_site_port'))
         try:
             wat.start()
             sst.start()
@@ -34,10 +38,11 @@ class WebConfig:
 
 
 class WebApiThread(threading.Thread):
-    def __init__(self, logger, config, port, *args, **kwargs):
+    def __init__(self, logger, config, host, port, *args, **kwargs):
         super(WebApiThread, self).__init__(*args, **kwargs)
         self.logger = logger
         self.config = config
+        self.host = host
         self.port = port
         self.shutdown_fun = self.run
         self.srv = ''
@@ -209,7 +214,7 @@ class WebApiThread(threading.Thread):
         api.add_resource(LoggingInfo, '/logging/<end_line>')
         api.add_resource(NewFileLogging, '/new_file_logging/<end_line>')
 
-        self.srv = make_server('192.168.10.129', self.port, app)
+        self.srv = make_server(self.host, self.port, app)
 
         if __name__ == '__main__':
             self.srv.serve_forever()
@@ -219,10 +224,11 @@ class WebApiThread(threading.Thread):
 
 
 class StaticServerThread(threading.Thread):
-    def __init__(self, logger, config, port, *args, **kwargs):
+    def __init__(self, logger, config, host, port, *args, **kwargs):
         super(StaticServerThread, self).__init__(*args, **kwargs)
         self.logger = logger
         self.config = config
+        self.host = host
         self.port = port
         self.shutdown_fun = self.run
         self.srv = ''
@@ -237,7 +243,7 @@ class StaticServerThread(threading.Thread):
 
         api.add_resource(HelloWorld, '/')
 
-        self.srv = make_server('192.168.10.129', self.port, app)
+        self.srv = make_server(self.host, self.port, app)
         if __name__ == '__main__':
             self.srv.serve_forever()
 
