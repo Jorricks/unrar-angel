@@ -55,7 +55,7 @@ class WebApiThread(threading.Thread):
         config = self.config
 
         def password_is_valid(password):
-            if password == self.config.get_config_global('web_password'):
+            if password == config.get_config_global('web_password'):
                 return True
             return False
 
@@ -64,8 +64,6 @@ class WebApiThread(threading.Thread):
             return json.loads(json.dumps(json_text))
 
         def test_item_global(value, key, type_setting, enum=''):
-            if not config.get_config_global(key):
-                return False
             if type_setting == 'str':
                 return config.test_global_string(value, key)
             if type_setting == 'int':
@@ -74,13 +72,11 @@ class WebApiThread(threading.Thread):
                 return config.test_global_path(value, key)
             if type_setting == 'bool':
                 return config.test_global_or(value, key, [0, 1])
-            if type_setting == 'or':
+            if type_setting == 'option':
                 return config.test_global_or(value, key, enum)
             return False
 
         def test_item_watcher(value, key, type_setting, uid, enum=''):
-            if not config.get_config_watcher(uid, key):
-                return False
             if type_setting == 'str':
                 return config.test_watcher_str(value, key)
             if type_setting == 'int':
@@ -89,7 +85,7 @@ class WebApiThread(threading.Thread):
                 return config.test_watcher_path(value, key)
             if type_setting == 'bool':
                 return config.test_watcher_boolean(value, key)
-            if type_setting == 'or':
+            if type_setting == 'option':
                 return config.test_watcher_or(value, key, enum)
             return False
 
@@ -103,6 +99,8 @@ class WebApiThread(threading.Thread):
 
             def post(self):
                 args = parser.parse_args()
+                print(args['pass'])
+                print(args['pass'])
                 if not password_is_valid(args['pass']): return jsonify({'data': 'invalid_pass'})
 
                 if len(args['global_settings']) < 5: return jsonify({'data': 'global_settings_not_specified'})
@@ -110,9 +108,14 @@ class WebApiThread(threading.Thread):
                 all_args = get_long_argument(args['global_settings'])
                 for key in all_args:
                     type_setting, possible_enum = config.get_config_item_type(key)
-                    if not test_item_global(all_args[key], key, type_setting, possible_enum):
-                        return jsonify({'data': 'invalid_key', 'key': key})
-                    config.set_config_global(all_args[key], key)
+                    if type_setting is None and possible_enum is None:
+                        return jsonify({'data': 'key_does_not_exist', 'key': key})
+                    value = all_args[key]
+                    if type_setting == 'int':
+                        value = int(all_args[key])
+                    if not test_item_global(value, key, type_setting, possible_enum):
+                        return jsonify({'data': 'invalid_value', 'key': key})
+                    config.set_config_global(value, key)
 
                 return jsonify({'data': 'true'})
 
@@ -142,12 +145,14 @@ class WebApiThread(threading.Thread):
                     return jsonify({'data': 'invalid_uid'})
                 for key in all_args:
                     type_setting, possible_enum = config.get_config_item_type(key)
-                    if not test_item_watcher(all_args[key], key, type_setting, uid, possible_enum):
-                        return jsonify({'data': 'invalid_key_or_value', 'key': key})
-                    config.set_config_watcher(uid, all_args[key], key)
-                    # print('{}, {}'.format(key, all_args['key']))
-                    # print('First verify if it is valid. If not, return error.')
-                    # print('Second, update the value. Make update calls for this.')
+                    if type_setting is None and possible_enum is None:
+                        return jsonify({'data': 'key_does_not_exist', 'key': key})
+                    value = all_args[key]
+                    if type_setting == 'int':
+                        value = int(all_args[key])
+                    if not test_item_watcher(value, key, type_setting, uid, possible_enum):
+                        return jsonify({'data': 'invalid_value', 'key': key})
+                    config.set_config_watcher(uid, value, key)
                 return jsonify({'data': 'true'})
 
         class LoggingInfo(Resource):
@@ -173,10 +178,36 @@ class WebApiThread(threading.Thread):
                     return jsonify({'data': 'no_lines_in_file'})
                 return jsonify({'data': arr})
 
+        class NewFileLogging(Resource):
+            def get(self, end_line):
+                args = parser.parse_args()
+                if not password_is_valid(args['pass']): return jsonify({'data': 'invalid_pass'})
+
+                count = 0
+                arr = collections.defaultdict(dict)
+                with FileReadBackwards(config.get_config_global('logging_path_new_files'), encoding="utf-8") as frb:
+                    for l in frb:
+                        if count == int(end_line):
+                            if len(arr) < 1:
+                                return jsonify({'data': 'end_line_was_0'})
+                            return jsonify({'data': arr})
+                        split_up = str(l).split(' - ')
+                        arr[count]['time'] = split_up[0][:19]
+                        arr[count]['config_name'] = split_up[1].strip()
+                        split_source = split_up[2].split('/')
+                        arr[count]['source_path'] = '/' + split_source[2][:-1].join('/')
+                        arr[count]['filename'] = split_up[2][-1]
+                        arr[count]['destination_path'] = split_up[3]
+                        count += 1
+                if len(arr) < 1:
+                    return jsonify({'data': 'no_lines_in_file'})
+                return jsonify({'data': arr})
+
         api.add_resource(GlobalSettings, '/global_settings')
         api.add_resource(AllWatcherSettings, '/all_watcher_settings')
         api.add_resource(UpdateWatcherSetting, '/watcher_settings/<watcher_uid>')
         api.add_resource(LoggingInfo, '/logging/<end_line>')
+        api.add_resource(NewFileLogging, '/new_file_logging/<end_line>')
 
         self.srv = make_server('192.168.10.129', self.port, app)
 
@@ -213,5 +244,5 @@ class StaticServerThread(threading.Thread):
     def shutdown_server(self):
         self.srv.shutdown()
 
-webconf = WebConfig(SimpleLogger('DEBUG', '/tmp/angel-logger.log'), Config())
+webconf = WebConfig(SimpleLogger('DEBUG', '/tmp/angel-logger.log', '/tmp/angel-logger-new-files.log'), Config())
 webconf.start_web_servers()

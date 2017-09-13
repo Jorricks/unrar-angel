@@ -66,6 +66,11 @@ class ActualUnRAR:
                         if self.unrar_file(i, self.error_count[i]):
                             if self.config.get_config_watcher(self.watcher_config[i], 'plex_on_or_off') == 1:
                                 self.plex.update_library(self.watcher_config[i])
+                            self.logger.py_new_file_logger(
+                                self.config.get_config_watcher(self.watcher_config[i], 'name'),
+                                self.files[i],
+                                self.config.get_config_watcher(self.watcher_config[i], 'destination_path')
+                            )
                             del self.files[i]
                             del self.watcher_config[i]
                             del self.last_size[i]
