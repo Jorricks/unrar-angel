@@ -26,6 +26,15 @@ $(document).ready(function(){
     $pagenumber.bind('change', function(){
         updateLogView();
     });
+    $('#add-new-watcher-button').on('click', function(){
+        addNewWatcherConfig();
+    });
+    $('.watcher-config-page .custom-fab').on('click', function(){
+        var retVal = confirm("Are you sure you want to remove this config ?");
+        if( retVal == true ){
+            removeCurrentWatcherConfig();
+        }
+    });
 
     getGlobalConfig();
 });
@@ -142,7 +151,6 @@ function createTableRow(appendTo, first, second, third, fourth){
             .appendTo($tr)
     }
 }
-
 
 function findGetParameter(parameterName) {
     var result = null,
@@ -368,11 +376,21 @@ function buildForm(jsonData, $form, translatefunction, prefix){
     });
 }
 
-function upgradeEl($item){
-    componentHandler.upgradeElement($item.get(0));
+function addNewWatcherConfig(){
+    return false;
+}
+
+function removeCurrentWatcherConfig(){
+    return false;
 }
 
 
+
+
+
+function upgradeEl($item){
+    componentHandler.upgradeElement($item.get(0));
+}
 
 function getWatcherTrans(key){
     return returnWatcherTranslation()[key];
