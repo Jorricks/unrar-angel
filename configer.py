@@ -95,16 +95,15 @@ class ActualConfig:
             self.search_and_set_watcher(watcher_item[0], watcher_item[2])
 
     def add_new_watchers(self):
-        self.watchers.insert({'uid': self.get_highest_uid_watcher()+1,
-                              'name': 'Watcher config' + str(self.get_highest_uid_watcher() + 1)})
+        self.add_new_watcher_by_uid(self.get_highest_uid_watcher()+1)
 
-    def copy_watcher(self, uid_original):
+    def add_new_watcher_by_uid(self, uid):
+        self.watchers.insert({'uid': uid,
+                              'name': 'Watcher config ' + str(self.get_highest_uid_watcher() + 1)})
+
+    def remove_watcher(self, w_uid):
         setting = Query()
-        item = self.watchers.search(setting.uid == uid_original)[0]
-        item['uid'] = self.get_highest_uid_watcher() + 1
-        item['on_or_off'] = 0
-        item['name'] = 'Copy of ' + item['name']
-        self.watchers.insert(item)
+        self.watchers.remove(setting.uid == int(w_uid))
 
     def get_highest_uid_watcher(self):
         highest_uid = 0
@@ -310,7 +309,7 @@ class ActualConfig:
                 arr[uid][i]['type'] = setting_type
                 arr[uid][i]['default'] = setting_default
                 arr[uid][i]['enum'] = setting_enum
-                arr[uid][i]['value'] = self.get_config_watcher(watcher['uid'], setting_key)
+                arr[uid][i]['value'] = self.get_config_watcher(uid, setting_key)
             i += 1
         return arr
 
@@ -343,6 +342,7 @@ class ConfigItems:
         self.gci.append(['angel_pid_path', 'path', '/tmp/unrar-angel.pid'])
         self.gci.append(['update_delay_in_seconds', 'int', 2])
         # @ToDo - Change this to 127.0.0.1
+        self.gci.append(['web_on_or_off', 'bool', 1])
         self.gci.append(['web_config_host_ip', 'str', '192.168.10.129'])
         self.gci.append(['web_config_site_port', 'int', 5000])
         self.gci.append(['web_config_api_port', 'int', 5001])

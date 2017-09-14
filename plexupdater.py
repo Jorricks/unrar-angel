@@ -25,7 +25,11 @@ class PlexUpdater:
     def get_library_uid(self, config_uid):
         url = self.url_builder(self.config.get_config_watcher(config_uid, 'plex_ip_port'), '',
                                self.config.get_config_watcher(config_uid, 'plex_token'))
-        response = requests.get(url)
+        try:
+            response = requests.get(url)
+        except:
+            self.logger.critical('Plex', 'Could not connect to server. Please check your config.')
+            return 0
         if response.status_code != 200:
             if response.status_code == 401:
                 self.logger.error('Plex', 'Plex got 401. You entered incorrect credentials.'
@@ -46,7 +50,11 @@ class PlexUpdater:
         url = self.url_builder(self.config.get_config_watcher(config_uid, 'plex_ip_port'),
                                '/' + library_uid + '/refresh',
                                self.config.get_config_watcher(config_uid, 'plex_token'))
-        response = requests.get(url)
+        try:
+            response = requests.get(url)
+        except:
+            self.logger.critical('Plex', 'Could not connect to server. Please check your config.')
+            return 0
         if response.status_code == 200:
             self.logger.info('Plex', 'Updated library called {}'
                              .format(self.config.get_config_watcher(config_uid, 'plex_library_name')))
