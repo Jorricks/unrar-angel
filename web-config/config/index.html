@@ -30,7 +30,7 @@ var APIPort = '5001';
 
 
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-    <a href="#" id="contact-button" class="mdl-button mdl-button--fab mdl-js-button mdl-button--raised
+    <a href="javascript:void(0)" id="contact-button" class="mdl-button mdl-button--fab mdl-js-button mdl-button--raised
     mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast mdl-shadow--4dp custom-fab">
         <i class="material-icons">add</i></a>
     <header class="mdl-layout__header mdl-layout__header--waterfall site-header">
@@ -88,36 +88,21 @@ var APIPort = '5001';
                             <img class="article-image" src="img/Added.png" border="0" alt="">
                         </div>
                         <div class="mdl-card__title top-info">
-                            <h2 class="mdl-card__title-text">Added files in the last 24 hours</h2>
+                            <h2 class="mdl-card__title-text">Added files in the last 7 days</h2>
                         </div>
-                        <div class="mdl-card__supporting-text top-number">
+                        <div class="mdl-card__supporting-text top-number number-of-new-files">
                             20
                         </div>
                     </div>
                 </section>
 
-                <div class="mdl-grid site-max-width home-page">
-                    <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp welcome-card portfolio-card">
-                        <form class="watcher-config">
-                            <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
-                                <thead>
-                                <tr>
-                                    <th class="mdl-data-table__cell--non-numeric">Timestamp</th>
-                                    <th class="mdl-data-table__cell--non-numeric">Log level</th>
-                                    <th class="mdl-data-table__cell--non-numeric">Component</th>
-                                    <th class="mdl-data-table__cell--non-numeric">Message</th>
-                                </tr>
-                                </thead>
-                                <tbody class="logging-home-page">
-                                </tbody>
-                            </table>
-                        </form>
-                    </div>
-                </div>
 
                 <div class="mdl-grid site-max-width home-page">
                     <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp welcome-card portfolio-card">
-                        <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+                        <div class="custom-title table-title">
+                            Processed files
+                        </div>
+                        <table class="mdl-data-table mdl-js-data-table table-has-title" style="width: 100%">
                             <thead>
                             <tr>
                                 <th class="mdl-data-table__cell--non-numeric">Timestamp</th>
@@ -126,31 +111,27 @@ var APIPort = '5001';
                                 <th class="mdl-data-table__cell--non-numeric">Destination</th>
                             </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="logging-new-file-home-page">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mdl-grid site-max-width home-page">
+                    <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp welcome-card portfolio-card">
+                        <div class="custom-title table-title">
+                            Logged events
+                        </div>
+                        <table class="mdl-data-table mdl-js-data-table table-has-title" style="width: 100%">
+                            <thead>
                             <tr>
-                                <td class="mdl-data-table__cell--non-numeric">John Lennon</td>
-                                <td class="mdl-data-table__cell--non-numeric">The smart one</td>
-                                <td class="mdl-data-table__cell--non-numeric">The smart one</td>
-                                <td class="mdl-data-table__cell--non-numeric">No</td>
+                                <th class="mdl-data-table__cell--non-numeric">Timestamp</th>
+                                <th class="mdl-data-table__cell--non-numeric">Log level</th>
+                                <th class="mdl-data-table__cell--non-numeric">Component</th>
+                                <th class="mdl-data-table__cell--non-numeric">Message</th>
                             </tr>
-                            <tr>
-                                <td class="mdl-data-table__cell--non-numeric">Paul McCartney</td>
-                                <td class="mdl-data-table__cell--non-numeric">The cute one</td>
-                                <td class="mdl-data-table__cell--non-numeric">The smart one</td>
-                                <td class="mdl-data-table__cell--non-numeric">Yes</td>
-                            </tr>
-                            <tr>
-                                <td class="mdl-data-table__cell--non-numeric">George Harrison</td>
-                                <td class="mdl-data-table__cell--non-numeric">The shy one</td>
-                                <td class="mdl-data-table__cell--non-numeric">The smart one</td>
-                                <td class="mdl-data-table__cell--non-numeric">No</td>
-                            </tr>
-                            <tr>
-                                <td class="mdl-data-table__cell--non-numeric">Ringo Starr</td>
-                                <td class="mdl-data-table__cell--non-numeric">The funny one</td>
-                                <td class="mdl-data-table__cell--non-numeric">The smart one</td>
-                                <td class="mdl-data-table__cell--non-numeric">Yes</td>
-                            </tr>
+                            </thead>
+                            <tbody class="logging-home-page">
                             </tbody>
                         </table>
                     </div>
@@ -159,14 +140,17 @@ var APIPort = '5001';
                 <div class="mdl-grid site-max-width global-config-page">
                     <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp welcome-card portfolio-card text-only">
                         <div class="custom-title">Global config</div>
-                        <form class="global-config global-config-form">
+                        <form onsubmit="return false;" class="global-config global-config-form" id="globalConfig">
                             <div class="error-info">
                                 Could not fetch the data (yet).
                             </div>
                         </form>
-                        <button class="mdl-button mdl-js-button mdl-button--primary">
-                            Update and restart
+                        <button class="mdl-button mdl-js-button mdl-button--primary" onclick="submitGlobalForm();">
+                            Update
                         </button>
+                        <div style="text-align: center;">
+                            (don't forget to manually restart the program!)
+                        </div>
                     </div>
                 </div>
 
@@ -174,7 +158,8 @@ var APIPort = '5001';
                 <div class="mdl-grid site-max-width watcher-config-page">
                     <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp welcome-card portfolio-card text-only">
                         <div class="custom-title">Watcher config</div>
-                        <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored right-corner-but custom-fab">
+                        <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored right-corner-but
+                        custom-fab delete-this-watcher-button">
                             <i class="material-icons">delete</i>
                         </button>
                         <div class="watcher-config-selecter-div">
@@ -183,19 +168,19 @@ var APIPort = '5001';
                                 <input class="mdl-textfield__input" id="select-which-epic-config"
                                        name="select-which-epic-config" value="1" type="text" readonly tabIndex="-1"
                                        data-val="1"/>
-                                <label class="mdl-textfield__label" for="select-which-epic-config">Page</label>
+                                <label class="mdl-textfield__label" for="select-which-epic-config">Which watcher config</label>
                                 <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu in-line-center watcher-ul-select"
                                     for="select-which-epic-config">
                                 </ul>
                             </div>
                         </div>
-                        <form class="watcher-config watcher-config-form">
+                        <form onsubmit="return false;"  class="watcher-config watcher-config-form" id="watcherConfig">
                             <div class="error-info">
                                 Could not fetch the data (yet).
                             </div>
                         </form>
-                        <button class="mdl-button mdl-js-button mdl-button--primary">
-                            Update
+                        <button class="mdl-button mdl-js-button mdl-button--primary" onclick="submitWatcherForm();">
+                            Update and restart watchers
                         </button>
                     </div>
                 </div>

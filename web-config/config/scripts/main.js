@@ -11,6 +11,7 @@ var dataOfGlobals;
 
 $(document).ready(function(){
     getLoggingInfo();
+    getNewFilesInfo();
     getWatcherSettings();
     $pagenumber = $('#pagenumber');
 
@@ -20,13 +21,14 @@ $(document).ready(function(){
         $pagenumber.val(1);
         updateLogView();
     });
-    $('.getmdl-select-which-config').bind('change', function(){
-        updateWatcherConfigForm();
+    $('.getmdl-select-which-config input').bind('change', function(){
+        currentWatcherUID = $('.getmdl-select-which-config input').attr('data-val');
+        updateWatcherConfigForm(false);
     });
     $pagenumber.bind('change', function(){
         updateLogView();
     });
-    $('#add-new-watcher-button').on('click', function(){
+    $('#contact-button').on('click', function(){
         addNewWatcherConfig();
     });
     $('.watcher-config-page .custom-fab').on('click', function(){
@@ -45,7 +47,6 @@ function getLoggingInfo(){
     $.getJSON(url)
         .done(function (json) {
             dataOfLogging = json.data;
-            var i = 0;
             $.each(json.data, function (i, log) {
                 if (i < 10){
                     createTableRow(
@@ -66,6 +67,7 @@ function getLoggingInfo(){
 }
 
 var currentWatcherUID = '';
+var highestWatcherUIDValue = 1;
 function getWatcherSettings(){
     var amountOfWatchers = 0;
     var amountOfActiveWatchers = 0;
@@ -73,12 +75,12 @@ function getWatcherSettings(){
     $.getJSON(url)
         .done(function (json) {
             dataOfWatchers = json;
-            var first = true;
             $.each(json, function (i, watcher) {
-                if(first){
-                    first = false;
-                    currentWatcherUID = watcher[0]['value'];
+                if(currentWatcherUID == '') currentWatcherUID = watcher[0]['value'];
+                if(currentWatcherUID == watcher[0]['value']) {
+                    $('.getmdl-select-which-config input').val(watcher[2]['value']);
                 }
+                highestWatcherUIDValue = Math.max(parseInt(watcher[0]['value']), highestWatcherUIDValue);
                 amountOfWatchers++;
                 if (watcher[1]['value'] == 1)
                     amountOfActiveWatchers++;
@@ -134,6 +136,39 @@ function updateLogView(){
     }
 }
 
+function getNewFilesInfo(){
+    var url = 'http://' + localIP + ":" + APIPort + "/new_file_logging/500?pass=" + Password;
+    $.getJSON(url)
+        .done(function (json) {
+            var currentTime = new Date();
+            var weekCounter = 0;
+            var maxDifference = 7*24*3600*1000; // 7 days
+            $.each(json.data, function (i, log) {
+                if (i < 10){
+                    var tm = String(log.time);
+                    var mydate = new Date(tm.substr(0,4), tm.substr(5,2)-1, tm.substr(8,2));
+                    var newDate = currentTime - mydate;
+                    if (newDate < maxDifference){
+                        weekCounter ++;
+                    }
+                    createTableRow(
+                        $('.logging-new-file-home-page'),
+                        log.time,
+                        log.config_name,
+                        log.filename,
+                        log.destination_path,
+                        log.source_path
+                    )
+                }
+            });
+            $('.number-of-new-files').text(weekCounter);
+        })
+        .fail(function( jqxhr, textStatus, error ) {
+            var err = textStatus + ", " + error;
+            console.log( "Request Failed: " + err );
+        });
+}
+
 function closeSelectAndUpdateValue(val){
     $('.page-selector').hide();
     $pagenumber.attr("data-val", val);
@@ -141,9 +176,12 @@ function closeSelectAndUpdateValue(val){
     $pagenumber.val(val);
 }
 
-function createTableRow(appendTo, first, second, third, fourth){
+function createTableRow(appendTo, first, second, third, fourth, fifth){
     $tr = $('<tr>').appendTo(appendTo);
     row = [first, second, third, fourth];
+    if (fifth != undefined)
+        row.push(fifth);
+
     for (var i = 0; i < row.length; i++){
         $('<td>')
             .addClass('mdl-data-table__cell--non-numeric')
@@ -179,7 +217,7 @@ function getWatcherConfig(json){
 
 
     $li = '';
-    $watcherconfigul = $('.watcher-ul-select');
+    $watcherconfigul = $('.watcher-ul-select').empty();
     $.each(watcherJson, function (i, watcher) {
         $li = $('<li>')
             .addClass('mdl-menu__item')
@@ -192,13 +230,13 @@ function getWatcherConfig(json){
         getmdlSelect.init('.getmdl-select-which-config');
     });
 
-    updateWatcherConfigForm();
+    updateWatcherConfigForm(false);
 }
 
-function updateWatcherConfigForm(){
+function updateWatcherConfigForm(use_default){
     $watcherconfigform = $('.watcher-config-form');
     $watcherconfigform.empty();
-    buildForm(watcherJson[currentWatcherUID], $watcherconfigform, getWatcherTrans);
+    buildForm(watcherJson[currentWatcherUID], $watcherconfigform, getWatcherTrans, use_default);
 
     // addSeperatorAfterElementDad($('#copy_or_unrar'));
     addSeperatorAfterElementDad($('#unrar_not_rar_but_match_regexp'));
@@ -208,6 +246,26 @@ function updateWatcherConfigForm(){
     ifOnDisableFriends($('#plex_on_or_off'), 'plex');
 
     basedOnResultDisable($('#copy_or_unrar'), 'copy', 'unrar');
+}
+
+function addNewWatcherConfig(){
+    updateWatcherConfigForm(true);
+    getWatcherSettings();
+}
+
+function removeCurrentWatcherConfig(){
+    var url = 'http://' + localIP + ":" + APIPort + "/remove_watcher/" + currentWatcherUID + "?pass=" + Password;
+    $.getJSON(url)
+        .done(function (json) {
+            console.log(json);
+            alert('Success. We removed the watcher with uid ' + currentWatcherUID);
+            currentWatcherUID = ''; // This is to let this get reinitialized
+            getWatcherSettings();
+        })
+        .fail(function( jqxhr, textStatus, error ) {
+            var err = textStatus + ", " + error;
+            console.log( "Request Failed: " + err );
+        });
 }
 
 function addSeperatorAfterElementDad($item){
@@ -255,9 +313,12 @@ function getGlobalConfig(){
         });
 }
 
-function buildForm(jsonData, $form, translatefunction, prefix){
-    if(prefix == undefined)
+
+
+function buildForm(jsonData, $form, translatefunction, use_default, prefix){
+    if(prefix == undefined){
         prefix = '';
+    }
     $form.empty();
     $.each(jsonData, function (i, element) {
         if (element.type == "str" || element.type == "path" || element.type == "int"){
@@ -272,6 +333,8 @@ function buildForm(jsonData, $form, translatefunction, prefix){
                 .val(element.value)
                 .appendTo($formElement);
 
+            if(use_default) $input.val(element.default);
+
             $label = $('<label>')
                 .addClass('mdl-textfield__label')
                 .attr('for', prefix + element.name)
@@ -283,6 +346,9 @@ function buildForm(jsonData, $form, translatefunction, prefix){
                 .appendTo($formElement);
 
             if (element.type == "int") {
+                if (element.name == "uid" && use_default){
+                    $input.val(highestWatcherUIDValue);
+                }
                 $input.attr('pattern', "[0-9]+");
                 $span.text('This should be a number!');
             }
@@ -310,8 +376,9 @@ function buildForm(jsonData, $form, translatefunction, prefix){
                 .addClass('mdl-switch__input')
                 .appendTo($label);
 
-            if(element.value == 1)
+            if(element.value == 1 || (use_default && element.default == 1)){
                 $input.attr('checked', true);
+            }
 
             $('<span>')
                 .addClass('mdl-switch__label')
@@ -340,6 +407,11 @@ function buildForm(jsonData, $form, translatefunction, prefix){
                 .attr('readonly', true)
                 .attr('tabIndex', '-1')
                 .attr('data-val', element.value);
+
+            if(use_default) {
+                $input.attr('value', element.default).attr('data-val', element.default);
+            }
+
             upgradeEl($input);
             $input.appendTo($formElement);
 
@@ -376,14 +448,50 @@ function buildForm(jsonData, $form, translatefunction, prefix){
     });
 }
 
-function addNewWatcherConfig(){
-    return false;
+function submitGlobalForm(){
+    var data = {};
+    var textfields = document.forms["globalConfig"].getElementsByTagName("input");
+    for(var i = 0; i < textfields.length; i++){
+        data[textfields[i].id] = textfields[i].value;
+    }
+    var url = 'http://' + localIP + ":" + APIPort + "/global_settings";
+    updateSettings(data, "global_settings", url);
 }
 
-function removeCurrentWatcherConfig(){
-    return false;
+function submitWatcherForm(){
+    var data = {};
+    var textfields = document.forms["watcherConfig"].getElementsByTagName("input");
+    for(var i = 0; i < textfields.length; i++){
+        if (textfields[i].value == 'on' || textfields[i].value == 'off'){
+            data[textfields[i].id] = textfields[i].checked;
+        } else {
+            data[textfields[i].id] = textfields[i].value;
+        }
+    }
+    var url = 'http://' + localIP + ":" + APIPort + "/watcher_settings/"+data['uid'];
+    updateSettings(data, "watcher_settings", url);
 }
 
+function updateSettings(newData, id, url){
+    var data = {};
+    data['pass'] = Password;
+    data[id] = newData;
+    data2 = JSON.stringify(data);
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: data2,
+        success: function(data){
+            console.log(data);
+            alert('Update successful.');
+            getWatcherSettings();
+        },
+        error: function(data){console.log(data); alert('Something went wrong. Please restart the service.');},
+        dataType: 'json',
+        contentType : 'application/json',
+        processData: false
+    });
+}
 
 
 
@@ -405,6 +513,7 @@ function returnGlobalTranslation(){
     array["personal_name"] = "Your name";
     array["program_name"] = "Name of the program";
     array["logging_path"] = "Logging path";
+    array["logging_path_new_files"] = "Logging path for second file";
     array["logging_level"] = "Logging level; debug logs everything";
     array["angel_pid_path"] = "Path of the daemon file(required in order to stay alive)";
     array["update_delay_in_seconds"] = "Check for an update every x seconds";
@@ -416,7 +525,7 @@ function returnGlobalTranslation(){
 
 function returnWatcherTranslation(){
     var array = [];
-    array["uid"] = "The unique identifier of this watcher. (Must be an int)";
+    array["uid"] = "The unique identifier. (Changing this will make a copy)";
     array["on_or_off"] = "Enable/disable this watcher";
     array["name"] = "Name of the watcher";
     array["source_path"] = "The folder the watcher should check for new files";
