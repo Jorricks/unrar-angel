@@ -306,6 +306,9 @@ function getGlobalConfig(){
     $.getJSON(url)
         .done(function (json) {
             buildForm(json, $('.global-config-form'), getGlobalTrans);
+
+            addSeperatorAfterElementDad($('#update_delay_in_seconds'));
+            ifOnDisableFriends($('#web_on_or_off'), 'web');
         })
         .fail(function( jqxhr, textStatus, error ) {
             var err = textStatus + ", " + error;
@@ -517,6 +520,8 @@ function returnGlobalTranslation(){
     array["logging_level"] = "Logging level; debug logs everything";
     array["angel_pid_path"] = "Path of the daemon file(required in order to stay alive)";
     array["update_delay_in_seconds"] = "Check for an update every x seconds";
+    array["web_on_or_off"] = "Turn the web interface on or off";
+    array["web_config_host_ip"] = "Which host should the site listen too";
     array["web_config_site_port"] = "Port used for the config site";
     array["web_config_api_port"] = "Port used for the API of the config site";
     array["web_password"] = "Password required for accessing this site";
@@ -534,6 +539,7 @@ function returnWatcherTranslation(){
     array["remove_after_finished"] = "Remove the file after the operation has been done(remove after copy turns the operation into a move, way faster!))";
     array["copy_match_everything"] = "For copy operations, match everything(otherwise regexp below)";
     array["copy_not_everything_but_match_regexp"] = "The regexp the files should match too in order to be processed";
+    array["copy_actually_dont_do_shit"] = "Disable copy/move and only enable the library update of Plex.";
     array["unrar_match_only_rar_extension"] = "For rar operations, match .rar files(otherwise regexp below).";
     array["unrar_not_rar_but_match_regexp"] = "The regexp the rar files should match too in order to be proccesed";
     array["recursive_searching"] = "Search deep/recursive into the source path";
@@ -543,8 +549,4 @@ function returnWatcherTranslation(){
     array["plex_token"] = "Your plex token (google 'get my plex token')";
     array["plex_library_name"] = "Plex library name (e.g. 'TV Series')";
     return array;
-}
-
-function getWatcherGroups(){
-
 }
