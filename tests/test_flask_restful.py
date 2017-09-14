@@ -147,7 +147,7 @@ class WebApiThread(threading.Thread):
                 all_args = get_long_argument(args['watcher_settings'])
                 uid = int(watcher_uid)
                 if len(config.get_watcher_by_uid(uid)) == 0:
-                    return jsonify({'data': 'invalid_uid'})
+                    config.add_new_watcher_by_uid(uid)
                 for key in all_args:
                     type_setting, possible_enum = config.get_config_item_type(key)
                     if type_setting is None and possible_enum is None:
@@ -158,6 +158,15 @@ class WebApiThread(threading.Thread):
                     if not test_item_watcher(value, key, type_setting, uid, possible_enum):
                         return jsonify({'data': 'invalid_value', 'key': key})
                     config.set_config_watcher(uid, value, key)
+                return jsonify({'data': 'true'})
+
+        class RemoveWatcher(Resource):
+            def get(self, watcher_uid):
+                args = parser.parse_args()
+                if not password_is_valid(args['pass']): return jsonify({'data': 'invalid_pass'})
+
+                config.remove_watcher(watcher_uid)
+
                 return jsonify({'data': 'true'})
 
         class LoggingInfo(Resource):
@@ -200,8 +209,8 @@ class WebApiThread(threading.Thread):
                         arr[count]['time'] = split_up[0][:19]
                         arr[count]['config_name'] = split_up[1].strip()
                         split_source = split_up[2].split('/')
-                        arr[count]['source_path'] = '/' + split_source[2][:-1].join('/')
-                        arr[count]['filename'] = split_up[2][-1]
+                        arr[count]['source_path'] = '/'.join(split_source[:-1])+'/'
+                        arr[count]['filename'] = split_source[-1]
                         arr[count]['destination_path'] = split_up[3]
                         count += 1
                 if len(arr) < 1:
@@ -211,6 +220,7 @@ class WebApiThread(threading.Thread):
         api.add_resource(GlobalSettings, '/global_settings')
         api.add_resource(AllWatcherSettings, '/all_watcher_settings')
         api.add_resource(UpdateWatcherSetting, '/watcher_settings/<watcher_uid>')
+        api.add_resource(RemoveWatcher, '/remove_watcher/<watcher_uid>')
         api.add_resource(LoggingInfo, '/logging/<end_line>')
         api.add_resource(NewFileLogging, '/new_file_logging/<end_line>')
 
