@@ -51,7 +51,7 @@ function checkPassword(){
         if(json.data === "valid"){
           // Valid
             createCookie('password', pass, '100');
-            location.reload();
+            location.href = '/';
         } else {
           // Invalid
             $passwordIsWrongNote.show();

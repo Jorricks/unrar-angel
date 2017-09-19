@@ -3,7 +3,7 @@ import threading
 import time
 import json
 import ast
-from flask import Flask, jsonify, send_from_directory, request
+from flask import Flask, jsonify, send_from_directory, request, redirect, url_for
 from flask_cors import CORS
 from flask_restful import Resource, Api, reqparse
 from werkzeug.serving import make_server
@@ -265,7 +265,15 @@ class StaticServerThread(threading.Thread):
             if password == self.config.get_config_global('web_password'):
                 return send_from_directory('web-config/config/', 'index.html')
             else:
-                return send_from_directory('web-config/login/', 'index.html')
+                return redirect(url_for('login'))
+
+        @app.route('/login')
+        def login():
+            return send_from_directory('web-config/login/', 'index.html')
+
+        @app.route('/favicon.ico')
+        def get_favicon():
+            return send_from_directory('', 'favicon.ico')
 
         @app.route('/get_api_info')
         def get_api_info():
@@ -277,6 +285,10 @@ class StaticServerThread(threading.Thread):
                 return jsonify({'data': 'valid'})
             else:
                 return jsonify({'data': 'invalid'})
+
+        # resp = make_response(send_from_directory('web-config/login/', 'index.html'))
+        # resp.set_cookie('password', expires=0)
+        # return resp
 
         @app.route('/config/js/<path:path>')
         def send_config_js(path):

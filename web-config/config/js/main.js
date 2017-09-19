@@ -4,7 +4,7 @@ var currentUrl = location.protocol+'//'+location.hostname+(location.port ? ':'+l
 var apiUrl = '';
 
 function getApiUrl(){
-    $.getJSON(currentUrl + '/get_api_info')
+    return $.getJSON(currentUrl + '/get_api_info')
         .then(function(data){
             return {url: data.data}
         });
@@ -21,11 +21,12 @@ var dataOfGlobals;
 $(document).ready(function(){
     getApiUrl().then(function(return_data){
         console.log(return_data['url']);
-        apiUrl = console.log(return_data['url'])
+        apiUrl = return_data['url'];
+        getLoggingInfo();
+        getNewFilesInfo();
+        getWatcherSettings();
+        getGlobalConfig();
     });
-    getLoggingInfo();
-    getNewFilesInfo();
-    getWatcherSettings();
     $pagenumber = $('#pagenumber');
 
     $("#amountonpage").bind('change', function() {
@@ -42,6 +43,7 @@ $(document).ready(function(){
         updateLogView();
     });
     $('#contact-button').on('click', function(){
+        location.href = '#watcher-config';
         addNewWatcherConfig();
     });
     $('.watcher-config-page .custom-fab').on('click', function(){
@@ -50,8 +52,12 @@ $(document).ready(function(){
             removeCurrentWatcherConfig();
         }
     });
+    $('#bye-button').on('click', function(e){
+        e.preventDefault();
+        eraseCookie('password');
+        location.href = '/login';
+    });
 
-    getGlobalConfig();
 });
 
 
@@ -574,6 +580,16 @@ function readCookie(name) {
         if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
     }
     return null;
+}
+
+function createCookie(name,value,days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + value + expires + "; path=/";
 }
 
 function eraseCookie(name) {

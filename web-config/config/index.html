@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="Expires" content="-1">
     <title>Unrar angel</title>
     <meta name="description" content="Demo of Material design portfolio template by TemplateFlip.com."/>
 
@@ -18,15 +20,20 @@
     <link href="config/css/custom.css" rel="stylesheet">
 
     <script src="config/js/getmdl-select.min.js"></script>
-    <link href="config/js/getmdl-select.min.css" rel="stylesheet">
+    <link href="config/css/getmdl-select.min.css" rel="stylesheet">
 </head>
 
 <body onhashchange="hashChangeCurrentView();" id="top">
 
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-    <a href="javascript:void(0)" id="contact-button" class="mdl-button mdl-button--fab mdl-js-button mdl-button--raised
+    <a id="contact-button" class="mdl-button mdl-button--fab mdl-js-button mdl-button--raised
     mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast mdl-shadow--4dp custom-fab">
-        <i class="material-icons">add</i></a>
+        <i class="material-icons">add</i>
+    </a>
+    <a id="bye-button" class="mdl-button mdl-button--fab mdl-js-button mdl-button--raised
+    mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast mdl-shadow--4dp exit-fab">
+        <i class="material-icons">exit_to_app</i>
+    </a>
     <header class="mdl-layout__header mdl-layout__header--waterfall site-header">
         <div class="mdl-layout__header-row site-logo-row">
             <span class="mdl-layout__title">
@@ -57,18 +64,18 @@
                 <section class="section&#45;&#45;center mdl-grid site-max-width home-page">
                     <div class="mdl-cell mdl-card mdl-shadow&#45;&#45;4dp portfolio-card">
                         <div class="mdl-card__media media-must-have-white-background">
-                            <img class="article-image" src="img/running1600.png" border="0" alt="">
+                            <img class="article-image" src="config/img/running1600.png" border="0" alt="">
                         </div>
                         <div class="mdl-card__title top-info">
                             <h2 class="mdl-card__title-text">Running watchers</h2>
                         </div>
-                        <div class="mdl-card__supporting-text top-number running-watchers">
+                        <div class="mdl-card__supporting-text top-number top-no-absolute running-watchers">
 
                         </div>
                     </div>
                     <div class="mdl-cell mdl-card mdl-shadow&#45;&#45;4dp portfolio-card">
                         <div class="mdl-card__media media-must-have-white-background">
-                            <img class="article-image" src="img/find-512.png" border="0" alt="">
+                            <img class="article-image" src="config/img/find-512.png" border="0" alt="">
                         </div>
                         <div class="mdl-card__title top-info">
                             <h2 class="mdl-card__title-text">Amount of watchers configured</h2>
@@ -79,12 +86,12 @@
                     </div>
                     <div class="mdl-cell mdl-card mdl-shadow&#45;&#45;4dp portfolio-card">
                         <div class="mdl-card__media media-must-have-white-background">
-                            <img class="article-image" src="img/Added.png" border="0" alt="">
+                            <img class="article-image" src="config/img/Added.png" border="0" alt="">
                         </div>
                         <div class="mdl-card__title top-info">
                             <h2 class="mdl-card__title-text">Added files in the last 7 days</h2>
                         </div>
-                        <div class="mdl-card__supporting-text top-number number-of-new-files">
+                        <div class="mdl-card__supporting-text top-number top-no-absolute number-of-new-files">
                             20
                         </div>
                     </div>
@@ -96,13 +103,14 @@
                         <div class="custom-title table-title">
                             Processed files
                         </div>
-                        <table class="mdl-data-table mdl-js-data-table table-has-title" style="width: 100%">
+                        <table class="scroll-table mdl-data-table mdl-js-data-table table-has-title" style="width: 100%">
                             <thead>
                             <tr>
                                 <th class="mdl-data-table__cell--non-numeric">Timestamp</th>
                                 <th class="mdl-data-table__cell--non-numeric">Time finished</th>
                                 <th class="mdl-data-table__cell--non-numeric">Unpacked file</th>
                                 <th class="mdl-data-table__cell--non-numeric">Destination</th>
+                                <th class="mdl-data-table__cell--non-numeric">Source</th>
                             </tr>
                             </thead>
                             <tbody class="logging-new-file-home-page">
@@ -116,7 +124,7 @@
                         <div class="custom-title table-title">
                             Logged events
                         </div>
-                        <table class="mdl-data-table mdl-js-data-table table-has-title" style="width: 100%">
+                        <table class="scroll-table mdl-data-table mdl-js-data-table table-has-title" style="width: 100%">
                             <thead>
                             <tr>
                                 <th class="mdl-data-table__cell--non-numeric">Timestamp</th>
@@ -206,7 +214,7 @@
                     </div>
                     <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp welcome-card portfolio-card">
                         <form class="watcher-config">
-                            <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+                            <table class="scroll-table mdl-data-table mdl-js-data-table" style="width: 100%">
                                 <thead>
                                 <tr>
                                     <th class="mdl-data-table__cell--non-numeric">Timestamp</th>
@@ -271,7 +279,7 @@
                 <section class="section&#45;&#45;center mdl-grid site-max-width">
                     <div class="mdl-cell mdl-card mdl-shadow&#45;&#45;4dp portfolio-card">
                         <div class="mdl-card__media">
-                            <img class="article-image" src="img/portfolio1.jpg" border="0" alt="">
+                            <img class="article-image" src="config/img/portfolio1.jpg" border="0" alt="">
                         </div>
                         <div class="mdl-card__title">
                             <h2 class="mdl-card__title-text">Rocky Peak</h2>
@@ -284,7 +292,7 @@
                     </div>
                     <div class="mdl-cell mdl-card mdl-shadow&#45;&#45;4dp portfolio-card">
                         <div class="mdl-card__media">
-                            <img class="article-image" src="img/portfolio2.jpg" border="0" alt="">
+                            <img class="article-image" src="config/img/portfolio2.jpg" border="0" alt="">
                         </div>
                         <div class="mdl-card__title">
                             <h2 class="mdl-card__title-text">Night Shadow</h2>
@@ -297,7 +305,7 @@
                     </div>
                     <div class="mdl-cell mdl-card mdl-shadow&#45;&#45;4dp portfolio-card">
                         <div class="mdl-card__media">
-                            <img class="article-image" src="img/portfolio3.jpg" border="0" alt="">
+                            <img class="article-image" src="config/img/portfolio3.jpg" border="0" alt="">
                         </div>
                         <div class="mdl-card__title">
                             <h2 class="mdl-card__title-text">Sky Reach</h2>

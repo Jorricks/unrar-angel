@@ -138,3 +138,19 @@ input[disabled]{
     top: 25px;
     right: 25px;
 }
+
+.exit-fab {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    z-index: 100;
+    background-color: rgb(255, 141, 0) !important;
+    color: white !important;
+}
+
+@media (max-width: 839px) {
+    .scroll-table{
+        overflow-x: auto;
+        display: block;
+    }
+}
