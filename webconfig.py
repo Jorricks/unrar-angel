@@ -286,6 +286,10 @@ class StaticServerThread(threading.Thread):
         def send_config_css(path):
             return send_from_directory('web-config/config/css', path)
 
+        @app.route('/config/img/<path:path>')
+        def send_config_img(path):
+            return send_from_directory('web-config/config/img', path)
+
         @app.route('/login/js/<path:path>')
         def send_login_js(path):
             return send_from_directory('web-config/login/js', path)

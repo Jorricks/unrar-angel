@@ -44,9 +44,9 @@ $(document).ready(function(){
 });
 
 function checkPassword(){
-  var url = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '') + '/get_api_info/';
+  var url = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '') + '/is_valid_pass/';
   var pass = $('#pass').val();
-  $.getJson(url + pass)
+  $.getJSON(url + pass)
       .done(function(json){
         if(json.data === "valid"){
           // Valid
