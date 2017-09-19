@@ -271,28 +271,28 @@ class StaticServerThread(threading.Thread):
         def get_api_info():
             return jsonify({'data': str(self.host) + ":" + str(self.config.get_config_global('web_config_api_port'))})
 
-        @app.route('/is_valid_pass/')
-        def is_valid_pass(password):
-            if password == self.config.get_config_global('web_password'):
+        @app.route('/is_valid_pass/<string:string>')
+        def is_valid_pass(string):
+            if string == self.config.get_config_global('web_password'):
                 return jsonify({'data': 'valid'})
             else:
                 return jsonify({'data': 'invalid'})
 
         @app.route('/config/js/<path:path>')
         def send_config_js(path):
-            return send_from_directory('config/js', path)
+            return send_from_directory('web-config/config/js', path)
 
         @app.route('/config/css/<path:path>')
         def send_config_css(path):
-            return send_from_directory('config/css', path)
+            return send_from_directory('web-config/config/css', path)
 
         @app.route('/login/js/<path:path>')
         def send_login_js(path):
-            return send_from_directory('login/js', path)
+            return send_from_directory('web-config/login/js', path)
 
         @app.route('/login/css/<path:path>')
         def send_login_css(path):
-            return send_from_directory('login/css', path)
+            return send_from_directory('web-config/login/css', path)
 
         self.logger.info('WebConfig', 'Starting host at {}:{}'.format(self.host, self.port))
         try:
