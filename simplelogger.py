@@ -30,7 +30,7 @@ class ActualLogger(object):
         self.py_new_file_logger = logging.getLogger('angel-file-logger')
         # update logger
         self.update_logger()
-        self.py_logger.info('%-8s' % 'Logger' + ' - ' + 'Started logger')
+        self.py_logger.info('%-9s' % 'Logger' + ' - ' + 'Started logger')
 
     def update_logger(self):
         self.py_logger.handlers = []
@@ -55,7 +55,7 @@ class ActualLogger(object):
         else:
             self.py_logger.setLevel(logging.DEBUG)
             fh.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(levelname)-8s - %(message)s')
+        formatter = logging.Formatter('%(asctime)s - %(levelname)-9s - %(message)s')
         fh.setFormatter(formatter)
         self.py_logger.addHandler(fh)
 
@@ -66,19 +66,19 @@ class ActualLogger(object):
         self.py_new_file_logger.addHandler(fhnf)
 
     def debug(self, system, message):
-        self.py_logger.debug('%-8s' % system.upper() + ' - ' + message)
+        self.py_logger.debug('%-9s' % system.upper() + ' - ' + message)
 
     def info(self, system, message):
-        self.py_logger.info('%-8s' % system.upper() + ' - ' + message)
+        self.py_logger.info('%-9s' % system.upper() + ' - ' + message)
 
     def warning(self, system, message):
-        self.py_logger.warning('%-8s' % system.upper() + ' - ' + message)
+        self.py_logger.warning('%-9s' % system.upper() + ' - ' + message)
 
     def error(self, system, message):
-        self.py_logger.error('%-8s' % system.upper() + ' - ' + message)
+        self.py_logger.error('%-9s' % system.upper() + ' - ' + message)
 
     def critical(self, system, message):
-        self.py_logger.critical('%-8s' % system.upper() + ' - ' + message)
+        self.py_logger.critical('%-9s' % system.upper() + ' - ' + message)
 
     def new_file(self, config_name, filename, destination_path):
         self.py_new_file_logger.debug(config_name + ' - ' + filename + ' - ' + destination_path)

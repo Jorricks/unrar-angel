@@ -12,6 +12,7 @@ class MyDaemon(Daemon):
         self.logger.info('Daemon', 'Starting the actual process')
 
         watcher = Watcher(self.logger, self.config)
+        self.config.start_web_server()
         try:
             while True:
                 watcher.run()

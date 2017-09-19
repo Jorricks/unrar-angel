@@ -3,7 +3,7 @@ import threading
 import time
 import json
 import ast
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
 from flask_restful import Resource, Api, reqparse
 from werkzeug.serving import make_server
@@ -224,8 +224,13 @@ class WebApiThread(threading.Thread):
         api.add_resource(LoggingInfo, '/logging/<end_line>')
         api.add_resource(NewFileLogging, '/new_file_logging/<end_line>')
 
-        self.srv = make_server(self.host, self.port, app)
-
+        self.logger.info('WebConfig', 'Starting host at {}:{}'.format(self.host, self.port))
+        try:
+            self.srv = make_server(self.host, self.port, app)
+        except OSError as e:
+            self.logger.info('WebConfig', 'Error starting host {}:{}'.format(self.host, self.port))
+            self.logger.info('WebConfig', '{}'.format(e))
+        self.logger.info('WebConfig', 'Started host {}:{}'.format(self.host, self.port))
         if __name__ == '__main__':
             self.srv.serve_forever()
 
@@ -245,15 +250,52 @@ class StaticServerThread(threading.Thread):
 
     def run(self):  # Do the actual work.
         app = Flask(__name__)
-        api = Api(app)
 
-        class HelloWorld(Resource):
-            def get(self):
-                return {'hello': 'world'}
+        @app.route('/')
+        def index():
+            password = request.cookies.get('password')
+            if password == self.config.get_config_global('web_password'):
+                # @ToDo remove the ../
+                return send_from_directory('../web-config/config/', 'index.html')
+            else:
+                # @ToDo remove the ../
+                return send_from_directory('../web-config/login/', 'index.html')
 
-        api.add_resource(HelloWorld, '/')
+        @app.route('/get_api_info')
+        def get_api_info():
+            return jsonify({'data': str(self.host) + ":" + str(self.config.get_config_global('web_config_api_port'))})
 
-        self.srv = make_server(self.host, self.port, app)
+        @app.route('/is_valid_pass/')
+        def is_valid_pass(password):
+            if password == self.config.get_config_global('web_password'):
+                return jsonify({'data': 'valid'})
+            else:
+                return jsonify({'data': 'invalid'})
+
+        @app.route('/config/js/<path:path>')
+        def send_config_js(path):
+            return send_from_directory('config/js', path)
+
+        @app.route('/config/css/<path:path>')
+        def send_config_css(path):
+            return send_from_directory('config/css', path)
+
+        @app.route('/login/js/<path:path>')
+        def send_login_js(path):
+            return send_from_directory('login/js', path)
+
+        @app.route('/login/css/<path:path>')
+        def send_login_css(path):
+            return send_from_directory('login/css', path)
+
+        self.logger.info('WebConfig', 'Starting host at {}:{}'.format(self.host, self.port))
+        try:
+            self.srv = make_server(self.host, self.port, app)
+        except OSError as e:
+            self.logger.info('WebConfig', 'Error starting host {}:{}'.format(self.host, self.port))
+            self.logger.info('WebConfig', '{}'.format(e))
+        self.logger.info('WebConfig', 'Started host {}:{}'.format(self.host, self.port))
+
         if __name__ == '__main__':
             self.srv.serve_forever()
 
