@@ -34,6 +34,31 @@ $(window, document, undefined).ready(function() {
 
 });
 
+$passwordIsWrongNote = '';
+$(document).ready(function(){
+  $passwordIsWrongNote = $('.possible-error');
+  $('#form1').submit(function(event){
+    event.preventDefault();
+    checkPassword();
+  })
+});
+
+function checkPassword(){
+  var url = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '') + '/get_api_info/';
+  var pass = $('#pass').val();
+  $.getJson(url + pass)
+      .done(function(json){
+        if(json.data === "valid"){
+          // Valid
+            createCookie('password', pass, '100');
+            location.reload();
+        } else {
+          // Invalid
+            $passwordIsWrongNote.show();
+        }
+      })
+}
+
 function createCookie(name,value,days) {
     var expires = "";
     if (days) {

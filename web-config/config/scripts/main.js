@@ -10,9 +10,9 @@ function getApiUrl(){
         });
 }
 
-var Password = findGetParameter('password');
+var Password = readCookie('password');
 // For testing!!
-Password = 'unrar_angel';
+// Password = 'unrar_angel';
 // For testing!!
 var dataOfLogging;
 var dataOfWatchers;
