@@ -3,6 +3,7 @@ import os  # for testing if configs are valid paths.
 from tinydb import TinyDB, Query
 from tinydb.operations import set
 import consoleprint as console
+from webconfig import WebConfig
 
 
 class Singleton(type):
@@ -30,10 +31,18 @@ class ActualConfig:
         self.verify_watcher_configs_are_present()
 
         self.watchers_should_restart = False
+        self.web_config = ''
 
     def set_logger(self, logger):
         self.logger = logger
         self.logger.info('Config', 'Loaded config from directory {}'.format(os.path.abspath("config/global.json")))
+
+    def start_web_server(self):
+        self.web_config = WebConfig(self.logger, self)
+        self.web_config.start_web_servers()
+
+    def kill_web_server(self):
+        self.web_config.shutdown_web_servers()
 
     # Global related items
     # - Setting global settings
