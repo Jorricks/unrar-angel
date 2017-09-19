@@ -12,8 +12,8 @@
   <h1>UnRAR Angel</h1>
     <h3>Login</h3>
 </hgroup>
-<form>
-  <div class="group possible-error error">
+<form method="get" id="form1">
+  <div class="group possible-error error" style="display:none;">
     This combination does not exist.<br>
     Please try again.
   </div>
@@ -25,7 +25,8 @@
     <input id="pass" title="pass" type="password"><span class="highlight"></span><span class="bar"></span>
     <label for="pass">Password</label>
   </div>
-  <button type="button" class="button buttonBlue">Subscribe
+  <button type="submit" form="form1" value="Submit" class="button buttonBlue" id="submitform">
+    Enter
     <div class="ripples buttonRipples"><span class="ripplesCircle"></span></div>
   </button>
 </form>
