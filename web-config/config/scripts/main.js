@@ -1,5 +1,14 @@
-// Add your javascript here
-// Don't forget to add it into respective layouts where this js file is needed
+// Created by Jorrick Sleijster
+
+var currentUrl = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+var apiUrl = '';
+
+function getApiUrl(){
+    $.getJSON(currentUrl + '/get_api_info')
+        .then(function(data){
+            return {url: data.data}
+        });
+}
 
 var Password = findGetParameter('password');
 // For testing!!
@@ -10,6 +19,10 @@ var dataOfWatchers;
 var dataOfGlobals;
 
 $(document).ready(function(){
+    getApiUrl().then(function(return_data){
+        console.log(return_data['url']);
+        apiUrl = console.log(return_data['url'])
+    });
     getLoggingInfo();
     getNewFilesInfo();
     getWatcherSettings();
@@ -43,7 +56,7 @@ $(document).ready(function(){
 
 
 function getLoggingInfo(){
-    var url = 'http://' + localIP + ":" + APIPort + "/logging/500?pass=" + Password;
+    var url = 'http://' + apiUrl + "/logging/500?pass=" + Password;
     $.getJSON(url)
         .done(function (json) {
             dataOfLogging = json.data;
@@ -71,7 +84,7 @@ var highestWatcherUIDValue = 1;
 function getWatcherSettings(){
     var amountOfWatchers = 0;
     var amountOfActiveWatchers = 0;
-    var url = 'http://' + localIP + ":" + APIPort + "/all_watcher_settings?pass=" + Password;
+    var url = 'http://' + apiUrl + "/all_watcher_settings?pass=" + Password;
     $.getJSON(url)
         .done(function (json) {
             dataOfWatchers = json;
@@ -137,7 +150,7 @@ function updateLogView(){
 }
 
 function getNewFilesInfo(){
-    var url = 'http://' + localIP + ":" + APIPort + "/new_file_logging/500?pass=" + Password;
+    var url = 'http://' + apiUrl + "/new_file_logging/500?pass=" + Password;
     $.getJSON(url)
         .done(function (json) {
             var currentTime = new Date();
@@ -254,7 +267,7 @@ function addNewWatcherConfig(){
 }
 
 function removeCurrentWatcherConfig(){
-    var url = 'http://' + localIP + ":" + APIPort + "/remove_watcher/" + currentWatcherUID + "?pass=" + Password;
+    var url = 'http://' + apiUrl + "/remove_watcher/" + currentWatcherUID + "?pass=" + Password;
     $.getJSON(url)
         .done(function (json) {
             console.log(json);
@@ -302,10 +315,13 @@ function basedOnResultDisable($item, selector1, selector2){
 
 
 function getGlobalConfig(){
-    var url = 'http://' + localIP + ":" + APIPort + "/global_settings?pass=" + Password;
+    var url = 'http://' + apiUrl + "/global_settings?pass=" + Password;
     $.getJSON(url)
         .done(function (json) {
             buildForm(json, $('.global-config-form'), getGlobalTrans);
+
+            addSeperatorAfterElementDad($('#update_delay_in_seconds'));
+            ifOnDisableFriends($('#web_on_or_off'), 'web');
         })
         .fail(function( jqxhr, textStatus, error ) {
             var err = textStatus + ", " + error;
@@ -454,7 +470,7 @@ function submitGlobalForm(){
     for(var i = 0; i < textfields.length; i++){
         data[textfields[i].id] = textfields[i].value;
     }
-    var url = 'http://' + localIP + ":" + APIPort + "/global_settings";
+    var url = 'http://' + apiUrl + "/global_settings";
     updateSettings(data, "global_settings", url);
 }
 
@@ -468,7 +484,7 @@ function submitWatcherForm(){
             data[textfields[i].id] = textfields[i].value;
         }
     }
-    var url = 'http://' + localIP + ":" + APIPort + "/watcher_settings/"+data['uid'];
+    var url = 'http://' + apiUrl + "/watcher_settings/"+data['uid'];
     updateSettings(data, "watcher_settings", url);
 }
 
@@ -517,6 +533,8 @@ function returnGlobalTranslation(){
     array["logging_level"] = "Logging level; debug logs everything";
     array["angel_pid_path"] = "Path of the daemon file(required in order to stay alive)";
     array["update_delay_in_seconds"] = "Check for an update every x seconds";
+    array["web_on_or_off"] = "Turn the web interface on or off";
+    array["web_config_host_ip"] = "Which host should the site listen too";
     array["web_config_site_port"] = "Port used for the config site";
     array["web_config_api_port"] = "Port used for the API of the config site";
     array["web_password"] = "Password required for accessing this site";
@@ -534,6 +552,7 @@ function returnWatcherTranslation(){
     array["remove_after_finished"] = "Remove the file after the operation has been done(remove after copy turns the operation into a move, way faster!))";
     array["copy_match_everything"] = "For copy operations, match everything(otherwise regexp below)";
     array["copy_not_everything_but_match_regexp"] = "The regexp the files should match too in order to be processed";
+    array["copy_actually_dont_do_shit"] = "Disable copy/move and only enable the library update of Plex.";
     array["unrar_match_only_rar_extension"] = "For rar operations, match .rar files(otherwise regexp below).";
     array["unrar_not_rar_but_match_regexp"] = "The regexp the rar files should match too in order to be proccesed";
     array["recursive_searching"] = "Search deep/recursive into the source path";
@@ -545,6 +564,18 @@ function returnWatcherTranslation(){
     return array;
 }
 
-function getWatcherGroups(){
 
+function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+function eraseCookie(name) {
+    createCookie(name,"",-1);
 }
