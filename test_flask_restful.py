@@ -1,13 +1,15 @@
 import collections
 import threading
-import time
 import json
 import ast
-from flask import Flask, jsonify, send_from_directory, request
+
+import time
+from flask import Flask, jsonify, send_from_directory, request, redirect, url_for
 from flask_cors import CORS
 from flask_restful import Resource, Api, reqparse
 from werkzeug.serving import make_server
 from file_read_backwards import FileReadBackwards
+
 from simplelogger import SimpleLogger
 from configer import Config
 
@@ -16,25 +18,35 @@ class WebConfig:
     def __init__(self, logger, config):
         self.logger = logger
         self.config = config
+        self.wat = ''
+        self.sst = ''
 
     def start_web_servers(self):
-        wat = WebApiThread(self.logger, self.config,
-                           self.config.get_config_global('web_config_host_ip'),
-                           self.config.get_config_global('web_config_api_port'))
-        sst = StaticServerThread(self.logger, self.config,
-                                 self.config.get_config_global('web_config_host_ip'),
-                                 self.config.get_config_global('web_config_site_port'))
+        self.wat = WebApiThread(self.logger, self.config,
+                                self.config.get_config_global('web_config_host_ip'),
+                                self.config.get_config_global('web_config_api_port'))
+        self.sst = StaticServerThread(self.logger, self.config,
+                                      self.config.get_config_global('web_config_host_ip'),
+                                      self.config.get_config_global('web_config_site_port'))
         try:
-            wat.start()
-            sst.start()
+            self.wat.start()
+            self.sst.start()
             while True:
                 time.sleep(1)
         except:
             self.logger.critical('WebConf', 'The webserver config thread ran into an error')
-            wat.shutdown_server()
-            sst.shutdown_server()
-            wat.join()
-            sst.join()
+            self.shutdown_web_servers()
+            self.wat.shutdown_server()
+            self.sst.shutdown_server()
+            self.wat.join()
+            self.sst.join()
+
+    def shutdown_web_servers(self):
+        self.logger.info('WebConf', 'Shutting down the webservers')
+        self.wat.shutdown_server()
+        self.sst.shutdown_server()
+        self.wat.join()
+        self.sst.join()
 
 
 class WebApiThread(threading.Thread):
@@ -104,8 +116,6 @@ class WebApiThread(threading.Thread):
 
             def post(self):
                 args = parser.parse_args()
-                print(args['pass'])
-                print(args['pass'])
                 if not password_is_valid(args['pass']): return jsonify({'data': 'invalid_pass'})
 
                 if len(args['global_settings']) < 5: return jsonify({'data': 'global_settings_not_specified'})
@@ -227,12 +237,14 @@ class WebApiThread(threading.Thread):
         self.logger.info('WebConfig', 'Starting host at {}:{}'.format(self.host, self.port))
         try:
             self.srv = make_server(self.host, self.port, app)
+            self.logger.info('WebConfig', 'Started host {}:{}'.format(self.host, self.port))
         except OSError as e:
             self.logger.info('WebConfig', 'Error starting host {}:{}'.format(self.host, self.port))
             self.logger.info('WebConfig', '{}'.format(e))
-        self.logger.info('WebConfig', 'Started host {}:{}'.format(self.host, self.port))
         if __name__ == '__main__':
             self.srv.serve_forever()
+        else:
+            self.logger.critical('WebConfig', 'Error, __name__ is "{}"'.format(__name__))
 
     def shutdown_server(self):
         self.srv.shutdown()
@@ -255,52 +267,69 @@ class StaticServerThread(threading.Thread):
         def index():
             password = request.cookies.get('password')
             if password == self.config.get_config_global('web_password'):
-                # @ToDo remove the ../
-                return send_from_directory('../web-config/config/', 'index.html')
+                return send_from_directory('web-config/config/', 'index.html')
             else:
-                # @ToDo remove the ../
-                return send_from_directory('../web-config/login/', 'index.html')
+                return redirect(url_for('login'))
+
+        @app.route('/login')
+        def login():
+            return send_from_directory('web-config/login/', 'index.html')
+
+        @app.route('/favicon.ico')
+        def get_favicon():
+            return send_from_directory('', 'favicon.ico')
 
         @app.route('/get_api_info')
         def get_api_info():
             return jsonify({'data': str(self.host) + ":" + str(self.config.get_config_global('web_config_api_port'))})
 
-        @app.route('/is_valid_pass/')
-        def is_valid_pass(password):
-            if password == self.config.get_config_global('web_password'):
+        @app.route('/is_valid_pass/<string:string>')
+        def is_valid_pass(string):
+            if string == self.config.get_config_global('web_password'):
                 return jsonify({'data': 'valid'})
             else:
                 return jsonify({'data': 'invalid'})
 
+        # resp = make_response(send_from_directory('web-config/login/', 'index.html'))
+        # resp.set_cookie('password', expires=0)
+        # return resp
+
         @app.route('/config/js/<path:path>')
         def send_config_js(path):
-            return send_from_directory('config/js', path)
+            return send_from_directory('web-config/config/js', path)
 
         @app.route('/config/css/<path:path>')
         def send_config_css(path):
-            return send_from_directory('config/css', path)
+            return send_from_directory('web-config/config/css', path)
+
+        @app.route('/config/img/<path:path>')
+        def send_config_img(path):
+            return send_from_directory('web-config/config/img', path)
 
         @app.route('/login/js/<path:path>')
         def send_login_js(path):
-            return send_from_directory('login/js', path)
+            return send_from_directory('web-config/login/js', path)
 
         @app.route('/login/css/<path:path>')
         def send_login_css(path):
-            return send_from_directory('login/css', path)
+            return send_from_directory('web-config/login/css', path)
 
         self.logger.info('WebConfig', 'Starting host at {}:{}'.format(self.host, self.port))
         try:
             self.srv = make_server(self.host, self.port, app)
+            self.logger.info('WebConfig', 'Started host {}:{}'.format(self.host, self.port))
         except OSError as e:
             self.logger.info('WebConfig', 'Error starting host {}:{}'.format(self.host, self.port))
             self.logger.info('WebConfig', '{}'.format(e))
-        self.logger.info('WebConfig', 'Started host {}:{}'.format(self.host, self.port))
 
         if __name__ == '__main__':
             self.srv.serve_forever()
+        else:
+            self.logger.critical('WebConfig', 'Error, __name__ is "{}"'.format(__name__))
 
     def shutdown_server(self):
         self.srv.shutdown()
+
 
 webconf = WebConfig(SimpleLogger('DEBUG', '/tmp/angel-logger.log', '/tmp/angel-logger-new-files.log'), Config())
 webconf.start_web_servers()

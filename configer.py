@@ -19,11 +19,12 @@ class ActualConfig:
     def __init__(self):
         self.logger = ''
 
-        if not os.path.exists('config'):
-            os.makedirs('config')
+        path = os.path.expanduser('~/.config/unrar-angel/')
+        if not os.path.exists(path):
+            os.makedirs(path)
 
-        self.globals = TinyDB('config/global.json')
-        self.watchers = TinyDB('config/watchers.json')
+        self.globals = TinyDB(path + 'global.json')
+        self.watchers = TinyDB(path + 'watchers.json')
 
         self.config_items = ConfigItems()
 
@@ -73,8 +74,6 @@ class ActualConfig:
     def set_config_global(self, value, keys):
         setting = Query()
         self.globals.update({'value': value}, setting.key == keys)
-        print('Should have changed {} to {}'.format(keys, value))
-        print('Value now is {}'.format(self.get_config_global(keys)))
 
     # Watcher settings
     # - Searching and setting settings
@@ -342,17 +341,16 @@ class ConfigItems:
         self.gci = []  # Global config items
         self.wci = []  # Watcher config items
         
-        self.gci.append(['personal_name', 'str', 'Doe'])
+        self.gci.append(['personal_name', 'str', 'John Doe'])
         self.gci.append(['program_name', 'str', 'UnRAR angel'])
         self.gci.append(['logging_path', 'path', '/tmp/angel-logger.log'])
         self.gci.append(['logging_path_new_files', 'path', '/tmp/angel-logger-new-files.log'])
-        self.gci.append(['logging_level', 'option', 'DEBUG'])
+        self.gci.append(['logging_level', 'option', 'INFO'])
         self.gci[len(self.gci) - 1].append(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
         self.gci.append(['angel_pid_path', 'path', '/tmp/unrar-angel.pid'])
-        self.gci.append(['update_delay_in_seconds', 'int', 2])
-        # @ToDo - Change this to 127.0.0.1
+        self.gci.append(['update_delay_in_seconds', 'int', 10])
         self.gci.append(['web_on_or_off', 'bool', 1])
-        self.gci.append(['web_config_host_ip', 'str', '192.168.10.129'])
+        self.gci.append(['web_config_host_ip', 'str', 'localhost'])
         self.gci.append(['web_config_site_port', 'int', 5000])
         self.gci.append(['web_config_api_port', 'int', 5001])
         self.gci.append(['web_password', 'str', 'unrar_angel'])
@@ -368,16 +366,17 @@ class ConfigItems:
         self.wci.append(['copy_or_unrar', 'option', 'unrar'])  # D
         self.wci[len(self.wci) - 1].append(['copy', 'unrar'])
         self.wci.append(['remove_after_finished', 'bool', 0])  # D
-        self.wci.append(['copy_match_everything', 'bool', 1])
+        self.wci.append(['copy_match_everything', 'bool', 1])  # D
         self.wci.append(['copy_not_everything_but_match_regexp', 'str', '.'])
-        self.wci.append(['copy_actually_dont_do_shit', 'bool', 0])
+        self.wci.append(['copy_actually_dont_do_shit', 'bool', 0])  # D
 
         self.wci.append(['unrar_match_only_rar_extension', 'bool', 1])
         self.wci.append(['unrar_not_rar_but_match_regexp', 'str', '.'])
+        self.wci.append(['unrar_dir_write_permission', 'bool', 0])
         
         self.wci.append(['plex_on_or_off', 'bool', 0])  # D
-        self.wci.append(['plex_ip_port', 'str', '127.0.0.1:32400'])  # D
-        self.wci.append(['plex_token', 'str', '7nr83qpBXvJZsJqbitQD'])  # D
+        self.wci.append(['plex_ip_port', 'str', 'localhost:32400'])  # D
+        self.wci.append(['plex_token', 'str', 'abcdef'])  # D
         self.wci.append(['plex_library_name', 'str', 'TV Series'])  # D
 
     def get_global_config_options(self):

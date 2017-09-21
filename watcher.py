@@ -28,7 +28,6 @@ class Watcher:
             else:
                 event_handler = UnrarHandler(self.logger, self.config, self.UnRARer, active_watcher['uid'])
 
-            self.logger.info('Watcher', '1')
             observer = Observer()
             recursive = (1 == active_watcher['recursive_searching'])
             try:
@@ -74,7 +73,7 @@ class UnrarHandler(FileSystemEventHandler):
         self.config = config
         self.unrar = unrar
         self.config_uid = config_uid
-        logger.debug('Watcher', 'Created a file event unrar handler for config %s' % self.config_uid)
+        logger.debug('Watcher', 'Created a file unrar handler for config %s' % self.config_uid)
 
     def on_any_event(self, event, **kwargs):
         if event.is_directory:
@@ -93,7 +92,7 @@ class CopyHandler(FileSystemEventHandler):
         self.config = config
         self.copyer = copyer
         self.config_uid = config_uid
-        logger.debug('Watcher', 'Created a file event copy handler for config %s' % self.config_uid)
+        logger.debug('Watcher', 'Created a file copy handler for config %s' % self.config_uid)
 
     def on_any_event(self, event, **kwargs):
         if event.is_directory:

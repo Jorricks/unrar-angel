@@ -258,8 +258,8 @@ function updateWatcherConfigForm(use_default){
     buildForm(watcherJson[currentWatcherUID], $watcherconfigform, getWatcherTrans, use_default);
 
     // addSeperatorAfterElementDad($('#copy_or_unrar'));
-    addSeperatorAfterElementDad($('#unrar_not_rar_but_match_regexp'));
     addSeperatorAfterElementDad($('#recursive_directory_building_for_new_file'));
+    addSeperatorAfterElementDad($('#unrar_dir_write_permission'));
     addSeperatorAfterElementDad($('#plex_library_name'));
 
     ifOnDisableFriends($('#plex_on_or_off'), 'plex');
@@ -474,7 +474,11 @@ function submitGlobalForm(){
     var data = {};
     var textfields = document.forms["globalConfig"].getElementsByTagName("input");
     for(var i = 0; i < textfields.length; i++){
-        data[textfields[i].id] = textfields[i].value;
+        if (textfields[i].value == 'on' || textfields[i].value == 'off'){
+            data[textfields[i].id] = textfields[i].checked;
+        } else {
+            data[textfields[i].id] = textfields[i].value;
+        }
     }
     var url = 'http://' + apiUrl + "/global_settings";
     updateSettings(data, "global_settings", url);
@@ -561,6 +565,7 @@ function returnWatcherTranslation(){
     array["copy_actually_dont_do_shit"] = "Disable copy/move and only enable the library update of Plex.";
     array["unrar_match_only_rar_extension"] = "For rar operations, match .rar files(otherwise regexp below).";
     array["unrar_not_rar_but_match_regexp"] = "The regexp the rar files should match too in order to be proccesed";
+    array["unrar_dir_write_permission"] = "All files in the dir should be writable before unrar";
     array["recursive_searching"] = "Search deep/recursive into the source path";
     array["recursive_directory_building_for_new_file"] = "Recursive directory building for the new file";
     array["plex_on_or_off"] = "Update plex libraries on succeed";

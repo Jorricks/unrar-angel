@@ -80,7 +80,7 @@ class Daemon:
             pid = None
 
         if pid:
-            print("ERROR - The unrar angle daemon was already found. Daemon already running?")
+            print("ERROR - The unrar angel daemon was already found. Daemon already running?")
             self.logger.error('Daemon', 'PID file already exists, exiting')
             sys.exit(1)
 
@@ -100,7 +100,7 @@ class Daemon:
             pid = None
 
         if not pid:
-            print("ERROR - The unrar angle daemon was not found. Daemon not running?")
+            print("ERROR - The unrar angel daemon was not found. Daemon not running?")
             self.logger.warning('Daemon', 'Daemon appears not to be running')
             return  # not an error in a restart
 
