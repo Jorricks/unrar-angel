@@ -18,7 +18,7 @@ class Watcher:
         # self.directory_to_watch = config.get_watch_path()
 
     def run(self):
-        self.logger.info('Watcher', 'Got a total of {} active watchers'
+        self.logger.info('Watcher', 'Got a total of {} active watcher(s)'
                          .format(self.config.get_amount_of_active_watchers()))
         for active_watcher in self.config.get_all_active_watchers():
             self.logger.debug('Watcher', 'Creating {} watcher for config {}'
@@ -46,20 +46,21 @@ class Watcher:
         # self.observer.schedule(event_handler, self.directory_to_watch, recursive=True)
         # self.observer.start()
         # self.logger.info('Watcher', 'Started watching directory {}'.format(self.directory_to_watch))
-        try:
-            while True:
-                # Check here if we need to restart our watchers.
-                if self.config.should_watchers_restart() is True:
-                    self.logger.debug('Watcher', 'Watchers will restart')
-                    break
-                else:
-                    self.UnRARer.check_if_unrar_possible()
-                    self.Copyer.check_if_copy_possible()
-                time.sleep(self.config.get_config_global('update_delay_in_seconds'))
-        except:
-            for observer in self.observers:
-                observer.stop()
-                self.logger.info('Watcher', 'Got unexpected result, stopping observer.')
+
+        while True:
+            # Check here if we need to restart our watchers.
+            if self.config.should_watchers_restart() is True:
+                self.logger.debug('Watcher', 'Watchers will restart')
+                self.config.watchers_should_restart(False)
+                break
+            else:
+                self.UnRARer.check_if_unrar_possible()
+                self.Copyer.check_if_copy_possible()
+            time.sleep(self.config.get_config_global('update_delay_in_seconds'))
+
+        for observer in self.observers:
+            observer.stop()
+            self.logger.info('Watcher', 'Stopping observers.')
 
         for observer in self.observers:
             observer.join()

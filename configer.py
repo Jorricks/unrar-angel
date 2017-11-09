@@ -23,6 +23,8 @@ class ActualConfig:
         if not os.path.exists(path):
             os.makedirs(path)
 
+        self.config_path = path
+
         self.globals = TinyDB(path + 'global.json')
         self.watchers = TinyDB(path + 'watchers.json')
 
@@ -31,12 +33,12 @@ class ActualConfig:
         self.verify_global_configs_are_present()
         self.verify_watcher_configs_are_present()
 
-        self.watchers_should_restart = False
+        self.var_watchers_should_restart = False
         self.web_config = ''
 
     def set_logger(self, logger):
         self.logger = logger
-        self.logger.info('Config', 'Loaded config from directory {}'.format(os.path.abspath("config/global.json")))
+        self.logger.info('Config', 'Loaded config from directory {}'.format(self.config_path))
 
     def start_web_server(self):
         self.web_config = WebConfig(self.logger, self)
@@ -144,8 +146,11 @@ class ActualConfig:
     def get_amount_of_active_watchers(self):
         return len(self.get_all_active_watchers())
 
+    def watchers_should_restart(self, new_value):
+        self.var_watchers_should_restart = new_value
+
     def should_watchers_restart(self):
-        return self.watchers_should_restart
+        return self.var_watchers_should_restart
 
     def set_config_watcher(self, uid, value, key):
         setting = Query()
@@ -352,7 +357,7 @@ class ConfigItems:
         self.gci.append(['web_on_or_off', 'bool', 1])
         self.gci.append(['web_config_host_ip', 'str', 'localhost'])
         self.gci.append(['web_config_site_port', 'int', 5000])
-        self.gci.append(['web_config_api_port', 'int', 5001])
+        # self.gci.append(['web_config_api_port', 'int', 5001])
         self.gci.append(['web_password', 'str', 'unrar_angel'])
         
         self.wci.append(['uid', 'int', 1])  # D
@@ -378,6 +383,11 @@ class ConfigItems:
         self.wci.append(['plex_ip_port', 'str', 'localhost:32400'])  # D
         self.wci.append(['plex_token', 'str', 'abcdef'])  # D
         self.wci.append(['plex_library_name', 'str', 'TV Series'])  # D
+
+        self.wci.append(['kodi_on_or_off', 'bool', 0])  # D
+        self.wci.append(['kodi_user', 'str', 'kodi'])  # D
+        self.wci.append(['kodi_pass', 'str', 'kodi'])  # D
+        self.wci.append(['kodi_ip_port', 'str', 'localhost:80'])  # D
 
     def get_global_config_options(self):
         return self.gci

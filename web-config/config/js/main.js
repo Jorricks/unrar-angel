@@ -258,13 +258,7 @@ function updateWatcherConfigForm(use_default){
     buildForm(watcherJson[currentWatcherUID], $watcherconfigform, getWatcherTrans, use_default);
 
     // addSeperatorAfterElementDad($('#copy_or_unrar'));
-    addSeperatorAfterElementDad($('#recursive_directory_building_for_new_file'));
-    addSeperatorAfterElementDad($('#unrar_dir_write_permission'));
-    addSeperatorAfterElementDad($('#plex_library_name'));
-
-    ifOnDisableFriends($('#plex_on_or_off'), 'plex');
-
-    basedOnResultDisable($('#copy_or_unrar'), 'copy', 'unrar');
+    createWatcherSeperators();
 }
 
 function addNewWatcherConfig(){
@@ -502,21 +496,31 @@ function updateSettings(newData, id, url){
     var data = {};
     data['pass'] = Password;
     data[id] = newData;
-    data2 = JSON.stringify(data);
-    $.ajax({
-        type: 'POST',
-        url: url,
-        data: data2,
-        success: function(data){
-            console.log(data);
+    $.post(url, data)
+        .done(function(data2){
+            console.log(data2);
             alert('Update successful.');
             getWatcherSettings();
-        },
-        error: function(data){console.log(data); alert('Something went wrong. Please restart the service.');},
-        dataType: 'json',
-        contentType : 'application/json',
-        processData: false
-    });
+        })
+        .fail(function(data2){
+            console.log(data2);
+            alert('Something went wrong. Please restart the service.');
+        });
+    // data2 = JSON.stringify(data);
+    // $.ajax({
+    //     type: 'POST',
+    //     url: url,
+    //     data: data2,
+    //     success: function(data){
+    //         console.log(data);
+    //         alert('Update successful.');
+    //         getWatcherSettings();
+    //     },
+    //     error: function(data){console.log(data); alert('Something went wrong. Please restart the service.');},
+    //     dataType: 'json',
+    //     contentType : 'application/json',
+    //     processData: false
+    // });
 }
 
 
@@ -568,11 +572,27 @@ function returnWatcherTranslation(){
     array["unrar_dir_write_permission"] = "All files in the dir should be writable before unrar";
     array["recursive_searching"] = "Search deep/recursive into the source path";
     array["recursive_directory_building_for_new_file"] = "Recursive directory building for the new file";
-    array["plex_on_or_off"] = "Update plex libraries on succeed";
-    array["plex_ip_port"] = "Plex library address (e.g. localhost:32400)";
+    array["plex_on_or_off"] = "Update plex libraries on successful file operation";
+    array["plex_ip_port"] = "Plex web interface address (e.g. localhost:32400)";
     array["plex_token"] = "Your plex token (google 'get my plex token')";
     array["plex_library_name"] = "Plex library name (e.g. 'TV Series')";
+    array["kodi_on_or_off"] = "Update kodi libraries on successful file operation";
+    array["kodi_user"] = "Your kodi username for the web interface";
+    array["kodi_pass"] = "Your kodi password for the web interface";
+    array["kodi_ip_port"] = "Kodi web interface address (e.g. localhost:80)";
     return array;
+}
+
+function createWatcherSeperators(){
+    addSeperatorAfterElementDad($('#recursive_directory_building_for_new_file'));
+    addSeperatorAfterElementDad($('#unrar_dir_write_permission'));
+    addSeperatorAfterElementDad($('#plex_library_name'));
+    addSeperatorAfterElementDad($('#kodi_ip_port'));
+
+    ifOnDisableFriends($('#plex_on_or_off'), 'plex');
+    ifOnDisableFriends($('#kodi_on_or_off'), 'kodi');
+
+    basedOnResultDisable($('#copy_or_unrar'), 'copy', 'unrar');
 }
 
 

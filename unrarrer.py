@@ -3,7 +3,7 @@ from simplelogger import SimpleLogger
 from configer import Config
 from unrar import rarfile
 from unrar import unrarlib
-from plexupdater import Plexify
+from notifier import Notifier
 from os import listdir
 from os.path import isfile, join
 import re
@@ -23,7 +23,7 @@ class ActualUnRAR:
         self.logger = SimpleLogger()
         self.logger.info('UnRAR', 'Initializing UnRAR class')
         self.config = Config()
-        self.plex = Plexify(self.logger, self.config)
+        self.notifier = Notifier(self.logger, self.config)
         self.files = []
         self.watcher_config = []
         self.last_size = []
@@ -66,9 +66,7 @@ class ActualUnRAR:
                 if file_info.st_size >= 0:
                     if file_info.st_size == self.last_size[i]:
                         if self.unrar_file(i, self.error_count[i]):
-                            if self.config.get_config_watcher(self.watcher_config[i], 'plex_on_or_off') == 1:
-                                self.logger.py_logger('UnRAR', 'Going to try to update plex now')
-                                self.plex.update_library(self.watcher_config[i])
+                            self.notifier.new_notification(self.watcher_config[i])
                             self.logger.new_file(
                                 self.config.get_config_watcher(self.watcher_config[i], 'name'),
                                 self.files[i],
@@ -151,7 +149,7 @@ class ActualUnRAR:
                 try:
                     file = open(my_path + '/' + file, "a+")
                     file.close()
-                except IOError as ee:
+                except IOError:
                     return False, file
         return True, ''
 

@@ -1,7 +1,7 @@
 import os
 from simplelogger import SimpleLogger
 from configer import Config
-from plexupdater import Plexify
+from notifier import Notifier
 from shutil import copyfile
 import re
 
@@ -20,7 +20,7 @@ class ActualCopyer:
         self.logger = SimpleLogger()
         self.logger.info('Copyer', 'Initializing Copyer class')
         self.config = Config()
-        self.plex = Plexify(self.logger, self.config)
+        self.notifier = Notifier(self.logger, self.config)
         self.files = []
         self.watcher_config = []
         self.last_size = []
@@ -59,9 +59,7 @@ class ActualCopyer:
                     result = self.copy_file(i)
 
                 if result:
-                    if self.config.get_config_watcher(self.watcher_config[i], 'plex_on_or_off') == 1:
-                        self.logger.info('UnRAR', 'Going to try to update plex now')
-                        self.plex.update_library(self.watcher_config[i])
+                    self.notifier.new_notification(self.watcher_config[i])
                     self.logger.new_file(
                         self.config.get_config_watcher(self.watcher_config[i], 'name'),
                         self.files[i],

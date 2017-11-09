@@ -18,11 +18,13 @@ class MyDaemon():
         self.config.start_web_server()
         try:
             while True:
-                watcher.run()
-                self.logger.info('Angel', 'Reloading watchers')
+                self.logger.info('Angel', 'Loading watchers')
                 if self.config.get_amount_of_active_watchers() == 0:
                     self.logger.critical('Angel', 'There are no watchers to be started, quiting')
                     break
+                else:
+                    watcher.run()
+                    self.logger.info('Angel', 'Going to reload the watchers')
         except:
             self.logger.critical('Angel', 'Watcher ended, daemon has been beheaded')
 
