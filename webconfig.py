@@ -7,6 +7,8 @@ from flask_cors import CORS
 from flask_restful import Resource, Api, reqparse
 from werkzeug.serving import make_server
 from file_read_backwards import FileReadBackwards
+from gevent.pywsgi import WSGIServer
+
 
 
 class WebConfig:
@@ -229,7 +231,7 @@ class WebApiThread(threading.Thread):
 
         self.logger.info('WebConfig', 'Starting host at {}:{}'.format(self.host, self.port))
         try:
-            self.srv = make_server(self.host, self.port, app)
+            self.srv = WSGIServer((self.host, self.port), app)
             self.logger.info('WebConfig', 'Started host {}:{}'.format(self.host, self.port))
         except OSError as e:
             self.logger.info('WebConfig', 'Error starting host {}:{}'.format(self.host, self.port))
@@ -309,7 +311,7 @@ class StaticServerThread(threading.Thread):
 
         self.logger.info('WebConfig', 'Starting host at {}:{}'.format(self.host, self.port))
         try:
-            self.srv = make_server(self.host, self.port, app)
+            self.srv = WSGIServer((self.host, self.port), app)
             self.logger.info('WebConfig', 'Started host {}:{}'.format(self.host, self.port))
         except OSError as e:
             self.logger.info('WebConfig', 'Error starting host {}:{}'.format(self.host, self.port))

@@ -9,6 +9,8 @@ from flask_cors import CORS
 from flask_restful import Resource, Api, reqparse
 from werkzeug.serving import make_server
 from file_read_backwards import FileReadBackwards
+import gunicorn.app.base
+from gunicorn.six import iteritems
 
 from simplelogger import SimpleLogger
 from configer import Config
@@ -30,23 +32,17 @@ class WebConfig:
                                       self.config.get_config_global('web_config_site_port'))
         try:
             self.wat.start()
-            self.sst.start()
+            self.sst.run()
             while True:
                 time.sleep(1)
         except:
             self.logger.critical('WebConf', 'The webserver config thread ran into an error')
             self.shutdown_web_servers()
-            self.wat.shutdown_server()
-            self.sst.shutdown_server()
-            self.wat.join()
-            self.sst.join()
 
     def shutdown_web_servers(self):
         self.logger.info('WebConf', 'Shutting down the webservers')
         self.wat.shutdown_server()
-        self.sst.shutdown_server()
         self.wat.join()
-        self.sst.join()
 
 
 class WebApiThread(threading.Thread):
@@ -250,9 +246,9 @@ class WebApiThread(threading.Thread):
         self.srv.shutdown()
 
 
-class StaticServerThread(threading.Thread):
-    def __init__(self, logger, config, host, port, *args, **kwargs):
-        super(StaticServerThread, self).__init__(*args, **kwargs)
+class StaticServerThread:
+    def __init__(self, logger, config, host, port):
+        # super(StaticServerThread, self).__init__(*args, **kwargs)
         self.logger = logger
         self.config = config
         self.host = host
@@ -290,10 +286,6 @@ class StaticServerThread(threading.Thread):
             else:
                 return jsonify({'data': 'invalid'})
 
-        # resp = make_response(send_from_directory('web-config/login/', 'index.html'))
-        # resp.set_cookie('password', expires=0)
-        # return resp
-
         @app.route('/config/js/<path:path>')
         def send_config_js(path):
             return send_from_directory('web-config/config/js', path)
@@ -316,19 +308,37 @@ class StaticServerThread(threading.Thread):
 
         self.logger.info('WebConfig', 'Starting host at {}:{}'.format(self.host, self.port))
         try:
-            self.srv = make_server(self.host, self.port, app)
             self.logger.info('WebConfig', 'Started host {}:{}'.format(self.host, self.port))
         except OSError as e:
             self.logger.info('WebConfig', 'Error starting host {}:{}'.format(self.host, self.port))
             self.logger.info('WebConfig', '{}'.format(e))
 
         if __name__ == '__main__':
-            self.srv.serve_forever()
+            print('Starting the server')
+            options = {
+                'bind': '%s:%s' % (self.host, self.port),
+                'workers': 1,
+            }
+            self.srv = StandaloneApplication(app, options).run()
+            print('Started the server')
         else:
             self.logger.critical('WebConfig', 'Error, __name__ is "{}"'.format(__name__))
 
-    def shutdown_server(self):
-        self.srv.shutdown()
+
+class StandaloneApplication(gunicorn.app.base.BaseApplication):
+    def __init__(self, app, options=None):
+        self.options = options or {}
+        self.application = app
+        super(StandaloneApplication, self).__init__()
+
+    def load_config(self):
+        config = dict([(key, value) for key, value in iteritems(self.options)
+                       if key in self.cfg.settings and value is not None])
+        for key, value in iteritems(config):
+            self.cfg.set(key.lower(), value)
+
+    def load(self):
+        return self.application
 
 
 webconf = WebConfig(SimpleLogger('DEBUG', '/tmp/angel-logger.log', '/tmp/angel-logger-new-files.log'), Config())

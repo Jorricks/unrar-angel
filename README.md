@@ -18,7 +18,7 @@ A light-weight, highly configurable, unrar daemon.
     - The two configs are located into '~/.config/unrar-angel/
 - Set the global configuration to your liking.
 - Create a watcher and test it with putting a new file inside.
-- Check in the log whether the file was found.
+- Check in the log or on the web interface whether the file was found.
 - Profit and enjoy!
 
 ## Installation instructions
