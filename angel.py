@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import sys
+import traceback
+
 from simplelogger import SimpleLogger
 from configer import Config
 from watcher import Watcher
@@ -27,6 +29,9 @@ class MyDaemon:
                     self.logger.info('Angel', 'Going to reload the watchers')
         except Exception:
             self.logger.critical('Angel', 'Watcher ended, daemon has been beheaded')
+            self.logger.critical('Angel', traceback.format_exc())
+            self.logger.critical('Angel', sys.exc_info()[0])
+
 
 
 if __name__ == "__main__":
