@@ -6,7 +6,7 @@ from configer import Config
 from watcher import Watcher
 
 
-class MyDaemon():
+class MyDaemon:
     def __init__(self, main_logger, main_config):
         self.logger = main_logger
         self.config = main_config
@@ -25,7 +25,7 @@ class MyDaemon():
                 else:
                     watcher.run()
                     self.logger.info('Angel', 'Going to reload the watchers')
-        except:
+        except Exception:
             self.logger.critical('Angel', 'Watcher ended, daemon has been beheaded')
 
 

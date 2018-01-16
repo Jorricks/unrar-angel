@@ -83,7 +83,7 @@ class UnrarHandler(FileSystemEventHandler):
         elif event.event_type == 'created':
             # Take any action here when a file is first created.
             self.logger.debug('Watcher', 'Received created event: %s' % event.src_path)
-            self.unrar.add_new_file(event.src_path, '1')
+            self.unrar.add_new_file(event.src_path, self.config_uid)
 
 
 class CopyHandler(FileSystemEventHandler):
@@ -102,4 +102,4 @@ class CopyHandler(FileSystemEventHandler):
         elif event.event_type == 'created':
             # Take any action here when a file is first created.
             self.logger.debug('Watcher', 'Received created event: %s' % event.src_path)
-            self.copyer.add_new_file(event.src_path, '1')
+            self.copyer.add_new_file(event.src_path, self.config_uid)

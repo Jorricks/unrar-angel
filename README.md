@@ -28,7 +28,7 @@ A light-weight, highly configurable, unrar daemon.
 git clone https://github.com/JorricksTU/unrar-angel
 ```
 3. Run the program as specified and use verify_install as param
-4. Install watchdog, unrar, tinydb, requests with pip
+4. Install watchdog, unrar, tinydb, requests, file-read-backwards with pip
 5. Download the latest RARLAB unrar tarball found
 [here](http://www.rarlab.com/rar_add.htm "RARLAB library"), it is called
 'UnRAR source'.
