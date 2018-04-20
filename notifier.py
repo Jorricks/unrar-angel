@@ -1,3 +1,4 @@
+import error_reporter
 from plexupdater import Plexify
 import requests
 
@@ -23,5 +24,7 @@ class Notifier:
                 payload = {"jsonrpc": "2.0", "method": "VideoLibrary.Scan", "id": "mybash"}
                 requests.post(url, json=payload)
                 self.logger.info('Kodi', 'Successful update')
-            except requests.exceptions.ConnectionError:
+            except requests.exceptions.ConnectionError as e:
                 self.logger.error('Notifier', 'Error in updating Kodi. Could not connect')
+                error_file = error_reporter.print_error_file(e)
+                self.logger.error('Notifier', 'Complete stacktrace can be found in {}'.format(error_file))

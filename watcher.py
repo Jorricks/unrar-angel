@@ -1,6 +1,7 @@
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+import error_reporter
 from unrarrer import UnRAR
 from copyer import Copyer
 
@@ -36,6 +37,8 @@ class Watcher:
                                   recursive=recursive)
             except OSError as e:
                 self.logger.critical('Watcher', 'Received critical error: {}'.format(e))
+                error_file = error_reporter.print_error_file(e)
+                self.logger.error('Watcher', 'Complete stacktrace can be found in {}'.format(error_file))
                 return False
             observer.start()
             self.observers.append(observer)

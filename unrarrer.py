@@ -1,4 +1,6 @@
 import os
+
+import series_mover
 from simplelogger import SimpleLogger
 from configer import Config
 from unrar import rarfile
@@ -7,6 +9,7 @@ from notifier import Notifier
 from os import listdir
 from os.path import isfile, join
 import re
+import error_reporter
 
 
 class Singleton(type):
@@ -54,6 +57,8 @@ class ActualUnRAR:
             del self.watcher_config[len(self.watcher_config) - 1]
             del self.error_count[len(self.error_count) - 1]
             self.logger.error('UnRAR', 'Could not find {}, {}'.format(e.filename, e.strerror))
+            error_file = error_reporter.print_error_file(e)
+            self.logger.error('UnRAR', 'Complete stacktrace can be found in {}'.format(error_file))
 
     def check_if_unrar_possible(self):
         i = 0
@@ -89,7 +94,9 @@ class ActualUnRAR:
                 del self.watcher_config[i]
                 del self.last_size[i]
                 del self.error_count[i]
-                self.logger.error('UnRAR', 'Could not find {}, {}'.format(e.filename, e.strerror))
+                self.logger.error('UnRAR', 'Could not find {}'.format(e.filename))
+                error_file = error_reporter.print_error_file(e)
+                self.logger.error('UnRAR', 'Complete stacktrace can be found in {}'.format(error_file))
 
     def unrar_file(self, i, error_count):
         try:
@@ -97,8 +104,9 @@ class ActualUnRAR:
                 file = open(self.files[i], "a+")
                 file.close()
             except IOError as ee:
-                self.logger.error('UnRAR', 'Some process is still writing to file {} (error: {})'
-                                  .format(self.files[i], ee))
+                self.logger.error('UnRAR', 'Some process is still writing to file {}'.format(self.files[i]))
+                error_file = error_reporter.print_error_file(ee)
+                self.logger.error('UnRAR', 'Complete stacktrace can be found in {}'.format(error_file))
                 return False
 
             if not rarfile.is_rarfile(self.files[i]):
@@ -127,16 +135,32 @@ class ActualUnRAR:
                     try:
                         rar.extractall(path=unrar_path)
                     except Exception as e:
-                        self.logger.error('UnRAR', 'Errors encountered during unrar: {}'.format(e))
+                        self.logger.error('UnRAR', 'Errors encountered during unrar')
+                        error_file = error_reporter.print_error_file(e)
+                        self.logger.error('UnRAR', 'Complete stacktrace can be found in {}'.format(error_file))
                         return False
+
+                    if self.config.get_config_watcher(self.watcher_config[i], 'move_into_serie_maps') == 1:
+                        dest = self.config.get_config_watcher(self.watcher_config[i], 'destination_path')
+                        try:
+                            series_mover.move_all_series(dest)
+                            self.logger.info('UnRAR', 'Moved all files into subfiles : {}'.format(self.files[i]))
+                        except Exception as e:
+                            self.logger.error('MoveSeries', 'Error during moving')
+                            error_file = error_reporter.print_error_file(e)
+                            self.logger.error('MoveSeries', 'Error stacktrace can be found in {}'.format(error_file))
 
                     self.logger.info('UnRAR', 'Finished unrarring : {}'.format(self.files[i]))
                     return True
 
         except (rarfile.BadRarFile, unrarlib.UnrarException) as e:
-            self.logger.debug('UnRAR', 'UNRAR error encountered during unrar: {}'.format(e))
+            self.logger.error('UnRAR', 'UNRAR error encountered during unrar')
+            error_file = error_reporter.print_error_file(e)
+            self.logger.error('UnRAR', 'Error stacktrace can be found in {}'.format(error_file))
         except OSError as e:
-            self.logger.debug('UnRAR', 'OSError encountered during unrar: {}'.format(e))
+            self.logger.error('UnRAR', 'OSError encountered during unrar')
+            error_file = error_reporter.print_error_file(e)
+            self.logger.error('UnRAR', 'Error stacktrace can be found in {}'.format(error_file))
         return False
 
     def all_files_writable_in_directory(self, i):
@@ -149,7 +173,9 @@ class ActualUnRAR:
                 try:
                     file = open(my_path + '/' + file, "a+")
                     file.close()
-                except IOError:
+                except IOError as e:
+                    error_file = error_reporter.print_error_file(e)
+                    self.logger.error('UnRAR', 'Complete stacktrace can be found in {}'.format(error_file))
                     return False, file
         return True, ''
 

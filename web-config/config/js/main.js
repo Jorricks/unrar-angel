@@ -568,24 +568,25 @@ function returnWatcherTranslation(){
     array["copy_not_everything_but_match_regexp"] = "The regexp the files should match too in order to be processed";
     array["copy_actually_dont_do_shit"] = "Disable copy/move and only enable the library update of Plex.";
     array["unrar_match_only_rar_extension"] = "For rar operations, match .rar files(otherwise regexp below).";
-    array["unrar_not_rar_but_match_regexp"] = "The regexp the rar files should match too in order to be proccesed";
+    array["unrar_not_rar_but_match_regexp"] = "The regexp the rar files should match too in order to be processed";
     array["unrar_dir_write_permission"] = "All files in the dir should be writable before unrar";
+    array["move_into_serie_maps"] = "After unrar/copy operation, move TV series files into subfolders";
     array["recursive_searching"] = "Search deep/recursive into the source path";
     array["recursive_directory_building_for_new_file"] = "Recursive directory building for the new file";
     array["plex_on_or_off"] = "Update plex libraries on successful file operation";
     array["plex_ip_port"] = "Plex web interface address (e.g. localhost:32400)";
     array["plex_token"] = "Your plex token (google 'get my plex token')";
     array["plex_library_name"] = "Plex library name (e.g. 'TV Series')";
-    array["kodi_on_or_off"] = "Update kodi libraries on successful file operation";
-    array["kodi_user"] = "Your kodi username for the web interface";
-    array["kodi_pass"] = "Your kodi password for the web interface";
+    array["kodi_on_or_off"] = "Update Kodi libraries on successful file operation";
+    array["kodi_user"] = "Your Kodi username for the web interface";
+    array["kodi_pass"] = "Your Kodi password for the web interface";
     array["kodi_ip_port"] = "Kodi web interface address (e.g. localhost:80)";
     return array;
 }
 
 function createWatcherSeperators(){
     addSeperatorAfterElementDad($('#recursive_directory_building_for_new_file'));
-    addSeperatorAfterElementDad($('#unrar_dir_write_permission'));
+    addSeperatorAfterElementDad($('#move_into_serie_maps'));
     addSeperatorAfterElementDad($('#plex_library_name'));
     addSeperatorAfterElementDad($('#kodi_ip_port'));
 

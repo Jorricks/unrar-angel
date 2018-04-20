@@ -378,6 +378,7 @@ class ConfigItems:
         self.wci.append(['unrar_match_only_rar_extension', 'bool', 1])
         self.wci.append(['unrar_not_rar_but_match_regexp', 'str', '.'])
         self.wci.append(['unrar_dir_write_permission', 'bool', 0])
+        self.wci.append(['move_into_serie_maps', 'bool', 0])
         
         self.wci.append(['plex_on_or_off', 'bool', 0])  # D
         self.wci.append(['plex_ip_port', 'str', 'localhost:32400'])  # D

@@ -1,4 +1,5 @@
 import os
+import error_reporter
 from simplelogger import SimpleLogger
 from configer import Config
 from notifier import Notifier
@@ -43,6 +44,8 @@ class ActualCopyer:
             del self.files[len(self.files) - 1]
             del self.watcher_config[len(self.watcher_config) - 1]
             self.logger.error('Copyer', 'Could not find {}, {}'.format(e.filename, e.strerror))
+            error_file = error_reporter.print_error_file(e)
+            self.logger.error('Copyer', 'Complete stacktrace can be found in {}'.format(error_file))
 
     def check_if_copy_possible(self):
         i = 0
@@ -78,6 +81,8 @@ class ActualCopyer:
                 del self.files[i]
                 del self.watcher_config[i]
                 self.logger.error('Copyer', 'Could not find {}, {}'.format(e.filename, e.strerror))
+                error_file = error_reporter.print_error_file(e)
+                self.logger.error('Copyer', 'Complete stacktrace can be found in {}'.format(error_file))
 
     def copy_file(self, i):
         if not self.test_permission(self.files[i], 'r'): return True  # Testing read permission
@@ -87,8 +92,9 @@ class ActualCopyer:
             copyfile(self.files[i], self.get_destination(i))
             return True
         except IOError as e:
-            self.logger.error('Copyer', 'Encountered error during copying of {}. Error: {}'
-                              .format(self.files[i], e))
+            self.logger.error('Copyer', 'Encountered error during copying of {}.'.format(self.files[i]))
+            error_file = error_reporter.print_error_file(e)
+            self.logger.error('Copyer', 'Complete stacktrace can be found in {}'.format(error_file))
         return False
 
     def move_file(self, i):
@@ -99,8 +105,9 @@ class ActualCopyer:
             os.rename(self.files[i], self.get_destination(i))
             return True
         except OSError as e:
-            self.logger.error('Copyer', 'Encountered error during moving of {}. Error: {}'
-                              .format(self.files[i], e))
+            self.logger.error('Copyer', 'Encountered error during moving of {}'.format(self.files[i]))
+            error_file = error_reporter.print_error_file(e)
+            self.logger.error('Copyer', 'Complete stacktrace can be found in {}'.format(error_file))
             return False
 
     def create_path(self, i):
@@ -116,13 +123,15 @@ class ActualCopyer:
             file = open(file, permission)
             file.close()
             return True
-        except IOError as ee:
+        except IOError as e:
             if permission == 'a+':
-                self.logger.error('Copyer', 'Some process is still writing to file {} (error: {})'
-                                  .format(file, ee))
+                self.logger.error('Copyer', 'Some process is still writing to file {}'.format(file))
+                error_file = error_reporter.print_error_file(e)
+                self.logger.error('Copyer', 'Complete stacktrace can be found in {}'.format(error_file))
             else:
-                self.logger.error('Copyer', 'File does not exist {} (error: {})'
-                                  .format(file, ee))
+                self.logger.error('Copyer', 'File does not exist {}'.format(file))
+                error_file = error_reporter.print_error_file(e)
+                self.logger.error('Copyer', 'Complete stacktrace can be found in {}'.format(error_file))
             return False
 
     def get_destination(self, i):

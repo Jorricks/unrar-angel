@@ -6,6 +6,7 @@ from flask import Flask, jsonify, send_from_directory, request, redirect, url_fo
 from file_read_backwards import FileReadBackwards
 from gevent import signal
 from gevent.pywsgi import WSGIServer
+import error_reporter
 
 
 class WebConfig:
@@ -20,8 +21,10 @@ class WebConfig:
     def start_web_servers(self):
         try:
             self.wat.start()
-        except:
+        except Exception as e:
             self.logger.critical('WebConf', 'The webserver self.config thread ran into an error')
+            error_file = error_reporter.print_error_file(e)
+            self.logger.error('WebConf', 'Complete stacktrace can be found in {}'.format(error_file))
             self.shutdown_web_servers()
 
     def shutdown_web_servers(self):
@@ -289,4 +292,5 @@ class ServerThread(threading.Thread):
                 self.logger.critical('WebConfig', 'Error, __name__ is "{}"'.format(__name__))
         except OSError as e:
             self.logger.info('WebConfig', 'Shutdown host {}:{}'.format(self.host, self.port))
-            self.logger.info('WebConfig', '{}'.format(e))
+            error_file = error_reporter.print_error_file(e)
+            self.logger.error('WebConf', 'Complete stacktrace can be found in {}'.format(error_file))

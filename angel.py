@@ -6,6 +6,7 @@ import traceback
 from simplelogger import SimpleLogger
 from configer import Config
 from watcher import Watcher
+import error_reporter
 
 
 class MyDaemon:
@@ -27,11 +28,10 @@ class MyDaemon:
                 else:
                     watcher.run()
                     self.logger.info('Angel', 'Going to reload the watchers')
-        except Exception:
+        except Exception as e:
             self.logger.critical('Angel', 'Watcher ended, daemon has been beheaded')
-            self.logger.critical('Angel', traceback.format_exc())
-            self.logger.critical('Angel', sys.exc_info()[0])
-
+            error_file = error_reporter.print_error_file(e)
+            self.logger.error('Angel', 'Error stacktrace can be found in {}'.format(error_file))
 
 
 if __name__ == "__main__":
@@ -48,6 +48,12 @@ if __name__ == "__main__":
         if 'start' == sys.argv[1]:
             print('starting\n')
             logger.info('Angel', 'Starting ' + config.get_config_global('program_name'))
+            if config.get_config_global('web_on_or_off'):
+                print('Web config starting at {}:{}'.format(config.get_config_global('web_config_host_ip'),
+                                                            config.get_config_global('web_config_site_port')))
+            else:
+                print('Web Config not enabled. Enable it in the global config file.')
+
             daemon.run()
 
         # elif 'stop' == sys.argv[1]:

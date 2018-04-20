@@ -1,5 +1,6 @@
 import requests
 from xml.etree import ElementTree
+import error_reporter
 
 
 class Singleton(type):
@@ -27,8 +28,10 @@ class PlexUpdater:
                                self.config.get_config_watcher(config_uid, 'plex_token'))
         try:
             response = requests.get(url)
-        except:
+        except Exception as e:
             self.logger.critical('Plex', 'Could not connect to server. Please check your config.')
+            error_file = error_reporter.print_error_file(e)
+            self.logger.error('Plex', 'Complete stacktrace can be found in {}'.format(error_file))
             return 0
         if response.status_code != 200:
             if response.status_code == 401:
@@ -52,8 +55,10 @@ class PlexUpdater:
                                self.config.get_config_watcher(config_uid, 'plex_token'))
         try:
             response = requests.get(url)
-        except:
+        except Exception as e:
             self.logger.critical('Plex', 'Could not connect to server. Please check your config.')
+            error_file = error_reporter.print_error_file(e)
+            self.logger.error('Plex', 'Complete stacktrace can be found in {}'.format(error_file))
             return 0
         if response.status_code == 200:
             self.logger.info('Plex', 'Updated library called {}'
