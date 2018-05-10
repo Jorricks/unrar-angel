@@ -2,7 +2,7 @@ import os
 import error_reporter
 from simplelogger import SimpleLogger
 from configer import Config
-from notifier import Notifier
+from post_processor import PostProcessor
 from shutil import copyfile
 import re
 
@@ -21,7 +21,7 @@ class ActualCopyer:
         self.logger = SimpleLogger()
         self.logger.info('Copyer', 'Initializing Copyer class')
         self.config = Config()
-        self.notifier = Notifier(self.logger, self.config)
+        self.post_processor = PostProcessor(self.logger, self.config)
         self.files = []
         self.watcher_config = []
         self.last_size = []
@@ -62,7 +62,7 @@ class ActualCopyer:
                     result = self.copy_file(i)
 
                 if result:
-                    self.notifier.new_notification(self.watcher_config[i])
+                    self.post_processor.new_processed_file(self.watcher_config[i])
                     self.logger.new_file(
                         self.config.get_config_watcher(self.watcher_config[i], 'name'),
                         self.files[i],

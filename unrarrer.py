@@ -1,11 +1,10 @@
 import os
 
-import series_mover
 from simplelogger import SimpleLogger
 from configer import Config
 from unrar import rarfile
 from unrar import unrarlib
-from notifier import Notifier
+from post_processor import PostProcessor
 from os import listdir
 from os.path import isfile, join
 import re
@@ -26,7 +25,7 @@ class ActualUnRAR:
         self.logger = SimpleLogger()
         self.logger.info('UnRAR', 'Initializing UnRAR class')
         self.config = Config()
-        self.notifier = Notifier(self.logger, self.config)
+        self.post_processor = PostProcessor(self.logger, self.config)
         self.files = []
         self.watcher_config = []
         self.last_size = []
@@ -71,7 +70,7 @@ class ActualUnRAR:
                 if file_info.st_size >= 0:
                     if file_info.st_size == self.last_size[i]:
                         if self.unrar_file(i, self.error_count[i]):
-                            self.notifier.new_notification(self.watcher_config[i])
+                            self.post_processor.new_processed_file(self.watcher_config[i])
                             self.logger.new_file(
                                 self.config.get_config_watcher(self.watcher_config[i], 'name'),
                                 self.files[i],
@@ -139,16 +138,6 @@ class ActualUnRAR:
                         error_file = error_reporter.print_error_file(e)
                         self.logger.error('UnRAR', 'Complete stacktrace can be found in {}'.format(error_file))
                         return False
-
-                    if self.config.get_config_watcher(self.watcher_config[i], 'move_into_serie_maps') == 1:
-                        dest = self.config.get_config_watcher(self.watcher_config[i], 'destination_path')
-                        try:
-                            series_mover.move_all_series(dest)
-                            self.logger.info('UnRAR', 'Moved all files into subfiles : {}'.format(self.files[i]))
-                        except Exception as e:
-                            self.logger.error('MoveSeries', 'Error during moving')
-                            error_file = error_reporter.print_error_file(e)
-                            self.logger.error('MoveSeries', 'Error stacktrace can be found in {}'.format(error_file))
 
                     self.logger.info('UnRAR', 'Finished unrarring : {}'.format(self.files[i]))
                     return True

@@ -1,6 +1,5 @@
 import requests
 from xml.etree import ElementTree
-import error_reporter
 
 
 class Singleton(type):
@@ -13,12 +12,15 @@ class Singleton(type):
 
 
 class PlexUpdater:
+    name = 'Plex'
+    config_param = 'plex_on_or_off'
+
     def __init__(self, logger, config):
         self.logger = logger
         self.logger.info('Plex', 'Initializing Plexify class')
         self.config = config
 
-    def update_library(self, config_uid):
+    def update(self, config_uid):
         library_uid = self.get_library_uid(config_uid)
         if library_uid > 0:
             self.update_library_call(config_uid, str(library_uid))
@@ -26,13 +28,7 @@ class PlexUpdater:
     def get_library_uid(self, config_uid):
         url = self.url_builder(self.config.get_config_watcher(config_uid, 'plex_ip_port'), '',
                                self.config.get_config_watcher(config_uid, 'plex_token'))
-        try:
-            response = requests.get(url)
-        except Exception as e:
-            self.logger.critical('Plex', 'Could not connect to server. Please check your config.')
-            error_file = error_reporter.print_error_file(e)
-            self.logger.error('Plex', 'Complete stacktrace can be found in {}'.format(error_file))
-            return 0
+        response = requests.get(url)
         if response.status_code != 200:
             if response.status_code == 401:
                 self.logger.error('Plex', 'Plex got 401. You entered incorrect credentials.'
@@ -53,13 +49,7 @@ class PlexUpdater:
         url = self.url_builder(self.config.get_config_watcher(config_uid, 'plex_ip_port'),
                                '/' + library_uid + '/refresh',
                                self.config.get_config_watcher(config_uid, 'plex_token'))
-        try:
-            response = requests.get(url)
-        except Exception as e:
-            self.logger.critical('Plex', 'Could not connect to server. Please check your config.')
-            error_file = error_reporter.print_error_file(e)
-            self.logger.error('Plex', 'Complete stacktrace can be found in {}'.format(error_file))
-            return 0
+        response = requests.get(url)
         if response.status_code == 200:
             self.logger.info('Plex', 'Updated library called {}'
                              .format(self.config.get_config_watcher(config_uid, 'plex_library_name')))
