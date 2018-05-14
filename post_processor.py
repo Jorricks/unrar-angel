@@ -1,6 +1,7 @@
 import error_reporter
 from post_processing.plex import Plexify
 from post_processing.kodi import Kodi
+from post_processing.series_mover import SeriesMover
 
 
 class PostProcessor:
@@ -9,8 +10,8 @@ class PostProcessor:
         self.config = config
         self.plex = Plexify(self.logger, self.config)
         self.kodi = Kodi(self.logger, self.config)
-        self.class_instances = [self.plex, self.kodi]
-        self.class_names = ['Plex', 'Kodi']
+        self.seriemover = SeriesMover(self.logger, self.config)
+        self.class_instances = [self.plex, self.kodi, self.seriemover]
 
     def new_processed_file(self, watcher_uid):
         for class_instance in self.class_instances:
